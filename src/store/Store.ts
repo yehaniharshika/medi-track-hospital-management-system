@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import CustomerSlice from "../reducers/CustomerSlice.ts";
 import DoctorSlice from "../reducers/DoctorSlice.ts";
 import NurseSlice from "../reducers/NurseSlice.ts";
+import PatientSlice from "../reducers/PatientSlice.ts";
 
 
 
@@ -10,6 +11,7 @@ const store = configureStore({
         customers: CustomerSlice,
         doctors: DoctorSlice,
         nurses : NurseSlice,
+        patients : PatientSlice,
     },
 });
 
