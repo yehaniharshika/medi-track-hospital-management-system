@@ -6,7 +6,6 @@ export interface DoctorState {
     doctors: Doctor[];
 }
 
-// export const initialState: Crop[] =[];
 const initialState: DoctorState = {
     doctors: [],
 }
