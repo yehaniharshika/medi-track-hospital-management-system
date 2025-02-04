@@ -3,6 +3,7 @@ import CustomerSlice from "../reducers/CustomerSlice.ts";
 import DoctorSlice from "../reducers/DoctorSlice.ts";
 import NurseSlice from "../reducers/NurseSlice.ts";
 import PatientSlice from "../reducers/PatientSlice.ts";
+import AppointmentSlice from "../reducers/AppointmentSlice.ts";
 
 
 
@@ -12,6 +13,7 @@ const store = configureStore({
         doctors: DoctorSlice,
         nurses : NurseSlice,
         patients : PatientSlice,
+        appointments : AppointmentSlice,
     },
 });
 
