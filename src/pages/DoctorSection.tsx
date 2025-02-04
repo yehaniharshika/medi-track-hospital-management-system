@@ -6,6 +6,10 @@ import {motion} from "framer-motion";
 import {useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../store/Store.ts";
+import {addDoctor, deleteDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
+import {Doctor} from "../models/Doctor.ts";
 
 const DoctorSection = () => {
     const [show, setShow] = useState(false);
@@ -19,8 +23,9 @@ const DoctorSection = () => {
     const [gender, setGender] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [email, setEmail] = useState("");
+    const dispatch = useDispatch();
 
-
+    const doctors = useSelector((state : RootState) => state.doctors.doctors);
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -31,6 +36,54 @@ const DoctorSection = () => {
             reader.readAsDataURL(file);
         }
     };
+
+    const handleEditDoctor = (doctor: Doctor) => {
+        setDoctorId(doctor.doctorId);
+        setDoctorName(doctor.doctorName);
+        setSpecialty(doctor.specialty);
+        setDoctorImg(doctor.doctorImg);
+        setGender(doctor.gender);
+        setContactNumber(doctor.contactNumber);
+        setEmail(doctor.email);
+        setShow(true);
+    };
+
+
+    const handleAddDoctor = () => {
+        dispatch(
+            addDoctor({doctorId,doctorName,specialty,doctorImg,gender,contactNumber,email})
+        );
+        setDoctorId('');
+        setDoctorName('');
+        setSpecialty('');
+        setDoctorImg(null);
+        setGender('');
+        setContactNumber('');
+        setEmail('');
+        handleClose();
+    }
+
+
+    const handleUpdateDoctor = () => {
+        dispatch(updateDoctor({doctorId,doctorName,specialty,doctorImg,gender,contactNumber,email})
+        );
+        setDoctorId('');
+        setDoctorName('');
+        setSpecialty('');
+        setDoctorImg(null);
+        setGender('');
+        setContactNumber('');
+        setEmail('');
+        handleClose();
+    }
+
+    const handleDeleteDoctor = () => {
+        if (window.confirm("Are you sure you want to delete this doctor?")) {
+            dispatch(deleteDoctor(doctorId));
+        }
+        handleClose();
+    }
+
 
     return (
         <>
@@ -55,7 +108,8 @@ const DoctorSection = () => {
                                         <Row className="align-items-center">
                                             <motion.h4
                                                 className="font-bold text-2xl text-neutral-100"
-                                                style={{fontFamily: "'Ubuntu', sans-serif"}}
+                                                style={{fontFamily: "'Ubuntu', sans-serif",
+                                                fontWeight: "bold"}}
                                                 initial={{scale: 0.8, opacity: 0}}
                                                 animate={{scale: 1, opacity: 1}}
                                                 transition={{
@@ -64,7 +118,7 @@ const DoctorSection = () => {
                                                     ease: "easeOut",
                                                 }}
                                             >
-                                                Crops Management
+                                                Doctors Management
                                             </motion.h4>
                                         </Row>
                                     </Container>
@@ -148,10 +202,10 @@ const DoctorSection = () => {
                                         <Form.Label className="font-bold"
                                                     style={{ fontFamily: "'Montserrat', serif" ,
                                                         fontSize: "15px"}}>Gender</Form.Label>
-                                        <Form.Select  className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" ,
-                                            fontSize: "15px"}} value={gender}
-                                                     onChange={e => setGender(e.target.value)}>
-                                            <option value="" selected>Select gender</option>
+                                        <Form.Select className="border-2 border-black"
+                                                     style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
+                                                     value={gender} onChange={e => setGender(e.target.value)}>
+                                            <option value="">Select gender</option>
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                             <option value="Other">Other</option>
@@ -159,8 +213,8 @@ const DoctorSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Crop
-                                            Category</Form.Label>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Contact Number
+                                            </Form.Label>
                                         <Form.Control placeholder="Enter Contact Number"
                                                       className="border-2 border-black"
                                                       style={{ fontFamily: "'Montserrat', serif" ,
@@ -170,8 +224,8 @@ const DoctorSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Crop
-                                            Season</Form.Label>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            Email</Form.Label>
                                         <Form.Control placeholder="Enter Email"
                                                       className="border-2 border-black"
                                                       style={{ fontFamily: "'Montserrat', serif" ,
@@ -182,10 +236,10 @@ const DoctorSection = () => {
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button className="font-bold" variant="primary">Save</Button>
-                                <Button className="font-bold" variant="success">Update</Button>
+                                <Button className="font-bold" variant="primary" onClick={handleAddDoctor}>Save</Button>
+                                <Button className="font-bold" variant="success" onClick={handleUpdateDoctor}>Update</Button>
                                 <Button className="font-bold" variant="danger">Delete</Button>
-                                <Button className="font-bold" variant="secondary">Close</Button>
+                                <Button className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
                             </Modal.Footer>
                         </Modal>
                         <br/>
@@ -207,25 +261,27 @@ const DoctorSection = () => {
                                     </thead>
                                     <tbody style={{ fontFamily: "'Montserrat', serif" ,
                                         fontSize: "14px",fontWeight: "400"}}>
-                                    <tr className="hover:bg-blue-100 transition-all">
-                                        <td className="px-4 py-2 border">D001</td>
-                                        <td className="px-4 py-2 border">Dr. John Doe</td>
-                                        <td className="px-4 py-2 border">123456789V</td>
-                                        <td className="px-4 py-2 border">johndoe@example.com</td>
-                                        <td className="px-4 py-2 border">+94 77 123 4567</td>
-                                        <td className="px-4 py-2 border">+94 77 123 4567</td>
-                                        <td className="px-4 py-2 border">+94 77 123 4567</td>
-                                        <td className="px-4 py-2 border flex justify-center gap-2">
-                                            <button
-                                                className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-700">
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-700">
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
+                                        {doctors.map((doctor) => (
+                                            <tr key={doctor.doctorId} onClick={() => handleEditDoctor(doctor)}
+                                                className="hover:bg-blue-100 transition-all">
+                                                <td className="px-4 py-2 border">{doctor.doctorId}</td>
+                                                <td className="px-4 py-2 border">{doctor.doctorName}</td>
+                                                <td className="px-4 py-2 border">{doctor.specialty}</td>
+                                                <td className="px-4 py-2 border">
+                                                    <img src={doctor.doctorImg || ''} alt="Doctor Image"
+                                                         className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                </td>
+                                                <td className="px-4 py-2 border">{doctor.gender}</td>
+                                                <td className="px-4 py-2 border">{doctor.contactNumber}</td>
+                                                <td className="px-4 py-2 border">{doctor.email}</td>
+                                                <td className="px-4 py-2 border flex justify-center gap-2 h-[80px]">
+                                                    <button
+                                                        className="bg-red-500 text-white px-3 h-[40px] py-1 rounded-md hover:bg-red-700"
+                                                        onClick={handleDeleteDoctor}>Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </Table>
                             </div>
