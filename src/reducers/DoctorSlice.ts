@@ -33,6 +33,6 @@ const doctorSlice = createSlice({
         },
     },
 });
-export const {addDoctor,updateDoctor,deleteDoctor} = doctorSlice.actions;
 
+export const {addDoctor,updateDoctor,deleteDoctor} = doctorSlice.actions;
 export default doctorSlice.reducer;
