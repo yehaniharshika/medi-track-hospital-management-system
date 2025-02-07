@@ -4,6 +4,7 @@ import DoctorSlice from "../reducers/DoctorSlice.ts";
 import NurseSlice from "../reducers/NurseSlice.ts";
 import PatientSlice from "../reducers/PatientSlice.ts";
 import AppointmentSlice from "../reducers/AppointmentSlice.ts";
+import MedicineSlice from "../reducers/MedicineSlice.ts";
 
 
 
@@ -14,6 +15,8 @@ const store = configureStore({
         nurses : NurseSlice,
         patients : PatientSlice,
         appointments : AppointmentSlice,
+        medicines : MedicineSlice,
+
     },
 });
 
