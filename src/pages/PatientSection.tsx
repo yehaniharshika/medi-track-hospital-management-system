@@ -20,6 +20,7 @@ const PatientSection = () => {
     const [patientId, setPatientId] = useState("");
     const [patientName, setPatientName] = useState("");
     const [dob, setDob] = useState("");
+    const [age,setAge] = useState("");
     const [patientImg, setPatientImg] = useState<string | null>(null);
     const [addressLine1,setAddressLine1] = useState("");
     const [addressLine2,setAddressLine2] = useState("");
@@ -48,6 +49,7 @@ const PatientSection = () => {
         setPatientId(patient.patientId);
         setPatientName(patient.patientName);
         setDob(patient.dob);
+        setAge(patient.age);
         setPatientImg(patient.patientImg);
         setAddressLine1(patient.addressLine1);
         setAddressLine2(patient.addressLine2);
@@ -64,6 +66,7 @@ const PatientSection = () => {
         setPatientId('');
         setPatientName('');
         setDob('');
+        setAge('');
         setPatientImg(null);
         setAddressLine1('');
         setAddressLine2('');
@@ -78,7 +81,7 @@ const PatientSection = () => {
 
     const handleAddPatient = () => {
         dispatch(
-            addPatient({patientId,patientName,dob,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
+            addPatient({patientId,patientName,dob,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
         );
         resetForm();
         handleClose();
@@ -86,7 +89,7 @@ const PatientSection = () => {
 
 
     const handleUpdatePatient = () => {
-        dispatch(updatePatient({patientId,patientName,dob,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
+        dispatch(updatePatient({patientId,patientName,dob,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
         );
         resetForm();
         handleClose();
@@ -175,6 +178,11 @@ const PatientSection = () => {
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Date Of Birth</Form.Label>
                                         <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" ,
                                             fontSize: "15px"}}  type="date" value={dob} onChange={e => setDob(e.target.value)}/>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Age</Form.Label>
+                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="text" value={age} placeholder="Enter Age" onChange={e => setAge(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
