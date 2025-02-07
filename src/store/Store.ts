@@ -1,22 +1,21 @@
 import { configureStore } from "@reduxjs/toolkit";
-import CustomerSlice from "../reducers/CustomerSlice.ts";
 import DoctorSlice from "../reducers/DoctorSlice.ts";
 import NurseSlice from "../reducers/NurseSlice.ts";
 import PatientSlice from "../reducers/PatientSlice.ts";
 import AppointmentSlice from "../reducers/AppointmentSlice.ts";
 import MedicineSlice from "../reducers/MedicineSlice.ts";
+import MedicalReportSlice from "../reducers/MedicalReportSlice.ts";
 
 
 
 const store = configureStore({
     reducer: {
-        customers: CustomerSlice,
         doctors: DoctorSlice,
         nurses : NurseSlice,
         patients : PatientSlice,
         appointments : AppointmentSlice,
         medicines : MedicineSlice,
-
+        medicalReports : MedicalReportSlice,
     },
 });
 
