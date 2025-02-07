@@ -5,11 +5,13 @@ import PatientSlice from "../reducers/PatientSlice.ts";
 import AppointmentSlice from "../reducers/AppointmentSlice.ts";
 import MedicineSlice from "../reducers/MedicineSlice.ts";
 import MedicalReportSlice from "../reducers/MedicalReportSlice.ts";
+import DepartmentSlice from "../reducers/DepartmentSlice.ts";
 
 
 
 const store = configureStore({
     reducer: {
+        departments: DepartmentSlice,
         doctors: DoctorSlice,
         nurses : NurseSlice,
         patients : PatientSlice,
