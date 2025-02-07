@@ -3,15 +3,15 @@ import {Container, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {motion} from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store/Store.ts";
-import {Nurse} from "../models/Nurse.ts";
-import {addNurse, deleteNurse, updateNurse} from "../reducers/NurseSlice.ts";
 import {Appointment} from "../models/Appointment.ts";
 import {addAppointment, deleteAppointment, updateAppointment} from "../reducers/AppointmentSlice.ts";
+import {PiMicrosoftExcelLogoFill} from "react-icons/pi";
+import {SlCalender} from "react-icons/sl";
 
 const AppointmentSection = () => {
     const [show, setShow] = useState(false);
@@ -34,6 +34,15 @@ const AppointmentSection = () => {
     const patients = useSelector((state: RootState) => state.patients.patients);
     const doctors = useSelector((state: RootState) => state.doctors.doctors);
 
+    useEffect(() => {
+        const patientIdArray = patients.map((p) => p.patientId);
+        setPatientIds(patientIdArray);
+    }, [patients]);
+
+    useEffect(() => {
+        const doctorIdArray = doctors.map((d) => d.doctorId);
+        setDoctorIds(doctorIdArray);
+    }, [doctors]);
 
     const handleEditAppointment = (appointment: Appointment) => {
         setAppointmentCode(appointment.appointmentCode);
@@ -81,6 +90,10 @@ const AppointmentSection = () => {
         }
     };
 
+    const handleLoadAppointmentsToExcelSheet = () => {
+
+    }
+
 
     return (
         <>
@@ -115,7 +128,7 @@ const AppointmentSection = () => {
                                                     ease: "easeOut",
                                                 }}
                                             >
-                                                Nurse Management
+                                                Appointment Management
                                             </motion.h4>
                                         </Row>
                                     </Container>
@@ -126,7 +139,7 @@ const AppointmentSection = () => {
                         <div className="flex justify-between items-center mb-4">
 
                             <Button variant="primary" onClick={handleShow} className="h-10 max-w-40 font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
-                                + Add Nurse
+                                + Appointment
                             </Button>
 
                             <div className="w-1/3">
@@ -136,100 +149,146 @@ const AppointmentSection = () => {
                                         <MdSearch/>
                                     </InputGroup.Text>
                                 </InputGroup>
+                                <div>
+                                    <Button onClick={handleLoadAppointmentsToExcelSheet}><PiMicrosoftExcelLogoFill size={24}/></Button>
+                                    <Button><SlCalender size={24}/></Button>
+                                </div>
                             </div>
                         </div>
                         <Modal show={show} onHide={handleClose}>
                             <Modal.Header closeButton>
-                                <Modal.Title className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Nurse Details Form</Modal.Title>
+                                <Modal.Title className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment Details Form</Modal.Title>
                             </Modal.Header>
                             <Modal.Body className="bg-blue-300">
                                 <Form>
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Nurse ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
-                                                      value={nurseId} onChange={e => setNurseId(e.target.value)}/>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment
+                                            Code</Form.Label>
+                                        <Form.Control className="border-2 border-black"
+                                                      style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                                      value={appointmentCode}
+                                                      onChange={e => setAppointmentCode(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Full Name</Form.Label>
-                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="text" value={nurseName} placeholder="Enter full name" onChange={e => setNurseName(e.target.value)}/>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment
+                                            Date</Form.Label>
+                                        <Form.Control className="border-2 border-black font-normal" style={{
+                                            fontFamily: "'Montserrat', serif",
+                                            fontSize: "15px"
+                                        }} type="date" value={appointmentDate}
+                                                      onChange={e => setAppointmentDate(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Date Of Birth</Form.Label>
-                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" ,
-                                            fontSize: "15px"}}  type="date" value={dob} onChange={e => setDob(e.target.value)}/>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>
-                                        <div className="image-box">
-                                            {nurseImg ? (
-                                                <img src={nurseImg} alt="Crop Image 1"/>
-                                            ) : (
-                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>No Image Selected</div>
-                                            )}
-                                        </div>
-                                        <Button className="choose-image-btn" as="label">Choose Image
-                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setNurseImg)} hidden/>
-                                        </Button>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3" controlId="gender">
-                                        <Form.Label className="font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>Gender</Form.Label>
-                                        <Form.Select className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} value={gender} onChange={e => setGender(e.target.value)}>
-                                            <option value="">Select gender</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Other">Other</option>
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Contact Number
-                                        </Form.Label>
-                                        <Form.Control placeholder="Enter Contact Number" className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}} type="text" value={contactNumber}
-                                                      onChange={e => setContactNumber(e.target.value)}/>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3" controlId="gender">
-                                        <Form.Label className="font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>Qualification</Form.Label>
-                                        <Form.Select className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} value={qualification} onChange={e => setQualification(e.target.value)}>
-                                            <option value="">Select qualification</option>
-                                            <option value="Diploma in Nursing">Diploma in Nursing</option>
-                                            <option value="Associate Degree in Nursing (ADN)">Associate Degree in Nursing (ADN)</option>
-                                            <option value="Bachelor of Science in Nursing (BSc Nursing)">Bachelor of Science in Nursing (BSc Nursing)</option>
-                                            <option value="Master of Science in Nursing (MSc Nursing)">Master of Science in Nursing (MSc Nursing)</option>
-                                            <option value="Doctor of Nursing Practice (DNP)">Doctor of Nursing Practice (DNP)</option>
-                                            <option value="Registered Nurse (RN) Certification">Registered Nurse (RN) Certification</option>
-                                            <option value="Advanced Practice Registered Nurse (APRN)">Advanced Practice Registered Nurse (APRN)</option>
-                                            <option value="PhD in Nursing">PhD in Nursing</option>
-                                            <option value="Licensed Practical Nurse (LPN)">Licensed Practical Nurse (LPN)</option>
-                                            <option value="Critical Care Nursing Certification (CCRN)">Critical Care Nursing Certification (CCRN)</option>
-                                            <option value="Geriatric Nursing Certification (GNC)">Geriatric Nursing Certification (GNC)</option>
-                                            <option value="Pediatric Nursing Certification (CPN)">Pediatric Nursing Certification (CPN)</option>
-                                            <option value="Postgraduate Diploma in Nursing">Postgraduate Diploma in Nursing</option>
-                                            <option value="Other">Other</option>
-                                        </Form.Select>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment
+                                            Time</Form.Label>
+                                        <Form.Control placeholder="00:00:00" className="border-2 border-black font-normal" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="time" value={appointmentTime}
+                                                      onChange={e => setAppointmentTime(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
-                                            Email</Form.Label>
-                                        <Form.Control placeholder="Enter Email"
-                                                      className="border-2 border-black"
-                                                      style={{ fontFamily: "'Montserrat', serif" ,
-                                                          fontSize: "15px"}} type="text"
-                                                      value={email} onChange={e => setEmail(e.target.value)}/>
+                                            Patient Id
+                                        </Form.Label>
+                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
+                                            <option value="">Select Patient Id</option>
+                                            {patientIds.map((pid) => (
+                                                <option key={pid} value={pid}>
+                                                    {pid}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
                                     </Form.Group>
+
+                                    <Row className="mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="staff-id">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>patient Full Name</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                            </Form.Group>
+                                        </Col>
+
+                                        <Col md={6}>
+                                            <Form.Group controlId="firstName">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Contact Number</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            Doctor Id
+                                        </Form.Label>
+                                        <Form.Select className="border-2 border-black" aria-label="Default select example" value={doctorId} style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} onChange={(e) => setDoctorId(e.target.value)}>
+                                            <option value="">Select Doctor Id</option>
+                                            {doctorIds.map((did) => (
+                                                <option key={did} value={did}>
+                                                    {did}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    <Row className="mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="staff-id">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Doctor Name</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                            </Form.Group>
+                                        </Col>
+
+                                        <Col md={6}>
+                                            <Form.Group controlId="firstName">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Contact Number</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+
+
+                                    <Form.Group className="mb-3" controlId="gender">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}>Appointment Type</Form.Label>
+                                        <Form.Select className="border-2 border-black"
+                                                     style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
+                                                     value={appointmentType}
+                                                     onChange={e => setAppointmentType(e.target.value)}>
+                                            <option value="">Select appointment type</option>
+                                            <option value="General Checkup">General Checkup</option>
+                                            <option value="Follow-up">Follow-up</option>
+                                            <option value="Emergency">Emergency</option>
+                                            <option value="Consultation">Consultation</option>
+                                            <option value="Vaccination ">Vaccination</option>
+                                            <option value="Diagnostic Test">Diagnostic Test</option>
+                                            <option value="Physical Therapy">Physical Therapy</option>
+                                            <option value="Mental Health Counseling">Mental Health Counseling</option>
+                                            <option value="Prenatal Checkup">Prenatal Checkup</option>
+                                            <option value="Other">Other</option>
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3" controlId="gender">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}>Appointment Status</Form.Label>
+                                        <Form.Select className="border-2 border-black"
+                                                     style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
+                                                     value={appointmentStatus}
+                                                     onChange={e => setAppointmentStatus(e.target.value)}>
+                                            <option value="">Select appointment status</option>
+                                            <option value="Scheduled">Scheduled</option>
+                                            <option value="Completed">Completed</option>
+                                            <option value="Cancelled">Cancelled</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                    <br/>
 
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>
                                 <Button style={{ fontFamily: "'Montserrat', serif" ,
-                                    fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="primary" onClick={handleAddNurse}>Save</Button>
+                                    fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="primary" onClick={handleAddAppointment}>Save</Button>
                                 <Button  style={{ fontFamily: "'Montserrat', serif" ,
-                                    fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="success" onClick={handleUpdateNurse}>Update</Button>
+                                    fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="success" onClick={handleUpdateAppointment}>Update</Button>
                                 <Button  style={{ fontFamily: "'Montserrat', serif" ,
                                     fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
                             </Modal.Footer>
@@ -241,36 +300,31 @@ const AppointmentSection = () => {
                                        className="w-full text-center border border-gray-300" >
                                     <thead className="bg-red-500 text-white">
                                     <tr className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
-                                        <th className="px-4 py-2 border">Nurse ID</th>
-                                        <th className="px-4 py-2 border">Full Name</th>
-                                        <th className="px-4 py-2 border">Profile pic</th>
-                                        <th className="px-4 py-2 border">DOB</th>
-                                        <th className="px-4 py-2 border">Gender</th>
-                                        <th className="px-4 py-2 border">Phone</th>
-                                        <th className="px-4 py-2 border">Qualification</th>
-                                        <th className="px-4 py-2 border">Email</th>
+                                        <th className="px-4 py-2 border">Appointment Code</th>
+                                        <th className="px-4 py-2 border">Date</th>
+                                        <th className="px-4 py-2 border">Time</th>
+                                        <th className="px-4 py-2 border">Doctor Id</th>
+                                        <th className="px-4 py-2 border">Patient Id</th>
+                                        <th className="px-4 py-2 border">Appointment type</th>
+                                        <th className="px-4 py-2 border">Status</th>
                                         <th className="px-4 py-2 border">Action</th>
                                     </tr>
                                     </thead>
                                     <tbody style={{ fontFamily: "'Montserrat', serif" , fontSize: "14px",fontWeight: "400"}}>
-                                    {nurses.map((nurse) => (
-                                        <tr key={nurse.nurseId} onClick={() => handleEditNurse(nurse)}
+                                    {appointments.map((appointment) => (
+                                        <tr key={appointment.appointmentCode} onClick={() => handleEditAppointment(appointment)}
                                             className="hover:bg-blue-100 transition-all">
-                                            <td className="px-4 py-2 border">{nurse.nurseId}</td>
-                                            <td className="px-4 py-2 border">{nurse.nurseName}</td>
-                                            <td className="px-4 py-2 border">
-                                                <img src={nurse.nurseImg || ''} alt="nurse Image"
-                                                     className="w-[60px] h-[60px] object-cover rounded-full"/>
-                                            </td>
-                                            <td className="px-4 py-2 border">{nurse.dob}</td>
-                                            <td className="px-4 py-2 border">{nurse.gender}</td>
-                                            <td className="px-4 py-2 border">{nurse.contactNumber}</td>
-                                            <td className="px-4 py-2 border">{nurse.qualification}</td>
-                                            <td className="px-4 py-2 border">{nurse.email}</td>
+                                            <td className="px-4 py-2 border">{appointment.appointmentCode}</td>
+                                            <td className="px-4 py-2 border">{appointment.appointmentDate}</td>
+                                            <td className="px-4 py-2 border">{appointment.appointmentTime}</td>
+                                            <td className="px-4 py-2 border">{appointment.patientId}</td>
+                                            <td className="px-4 py-2 border">{appointment.doctorId}</td>
+                                            <td className="px-4 py-2 border">{appointment.appointmentType}</td>
+                                            <td className="px-4 py-2 border">{appointment.appointmentStatus}</td>
                                             <td className="px-4 py-2 border flex justify-center gap-2 h-[80px]">
                                                 <button
                                                     className="bg-red-500 text-white px-3 h-[40px] py-1 rounded-md hover:bg-red-700"
-                                                    onClick={(event) => handleDeleteNurse(event, nurse.nurseId)}>Delete
+                                                    onClick={(event) => handleDeleteAppointment(event, appointment.appointmentCode)}>Delete
                                                 </button>
                                             </td>
                                         </tr>
