@@ -190,7 +190,7 @@ const MedicineSection = () => {
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>
                                         <div className="image-box">
                                             {medicineImg ? (
-                                                <img src={medicineImg} alt="Crop Image 1"/>
+                                                <img src={medicineImg} alt="Medicine Image"/>
                                             ) : (
                                                 <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>No Image Selected</div>
                                             )}
