@@ -224,7 +224,7 @@ const MedicineSection = () => {
                                         <Form.Control placeholder="Enter Unit Price"
                                                       className="border-2 border-black"
                                                       style={{ fontFamily: "'Montserrat', serif" ,
-                                                          fontSize: "15px"}} type="num"
+                                                          fontSize: "15px"}} type="number"
                                                       value={unit_price}
                                                       onChange={e => setUnit_price(e.target.value)}/>
                                     </Form.Group>
@@ -234,7 +234,7 @@ const MedicineSection = () => {
                                         <Form.Control placeholder="Enter Email"
                                                       className="border-2 border-black"
                                                       style={{ fontFamily: "'Montserrat', serif" ,
-                                                          fontSize: "15px"}} type="num"
+                                                          fontSize: "15px"}} type="number"
                                                       value={quantity_in_stock} onChange={e => setQuantity_in_stock(e.target.value)}/>
                                     </Form.Group>
                                     <Form.Group className="mb-3">
