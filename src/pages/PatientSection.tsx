@@ -19,7 +19,6 @@ const PatientSection = () => {
 
     const [patientId, setPatientId] = useState("");
     const [patientName, setPatientName] = useState("");
-    const [dob, setDob] = useState("");
     const [age,setAge] = useState("");
     const [patientImg, setPatientImg] = useState<string | null>(null);
     const [addressLine1,setAddressLine1] = useState("");
@@ -48,7 +47,6 @@ const PatientSection = () => {
     const handleEditPatient = (patient: Patient) => {
         setPatientId(patient.patientId);
         setPatientName(patient.patientName);
-        setDob(patient.dob);
         setAge(patient.age);
         setPatientImg(patient.patientImg);
         setAddressLine1(patient.addressLine1);
@@ -65,7 +63,6 @@ const PatientSection = () => {
     const resetForm = () => {
         setPatientId('');
         setPatientName('');
-        setDob('');
         setAge('');
         setPatientImg(null);
         setAddressLine1('');
@@ -81,7 +78,7 @@ const PatientSection = () => {
 
     const handleAddPatient = () => {
         dispatch(
-            addPatient({patientId,patientName,dob,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
+            addPatient({patientId,patientName,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
         );
         resetForm();
         handleClose();
@@ -89,7 +86,7 @@ const PatientSection = () => {
 
 
     const handleUpdatePatient = () => {
-        dispatch(updatePatient({patientId,patientName,dob,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
+        dispatch(updatePatient({patientId,patientName,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
         );
         resetForm();
         handleClose();
@@ -175,14 +172,8 @@ const PatientSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Date Of Birth</Form.Label>
-                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" ,
-                                            fontSize: "15px"}}  type="date" value={dob} onChange={e => setDob(e.target.value)}/>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Age</Form.Label>
-                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="text" value={age} placeholder="Enter Age" onChange={e => setAge(e.target.value)}/>
+                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="number" value={age} placeholder="Enter Age" onChange={e => setAge(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
@@ -288,7 +279,7 @@ const PatientSection = () => {
                                     <tr className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                         <th className="px-4 py-2 border">Patient ID</th>
                                         <th className="px-4 py-2 border">Full Name</th>
-                                        <th className="px-4 py-2 border">DOB</th>
+                                        <th className="px-4 py-2 border">Age</th>
                                         <th className="px-4 py-2 border">Profile pic</th>
                                         <th className="px-4 py-2 border">Address Line01</th>
                                         <th className="px-4 py-2 border">Address Line02</th>
@@ -307,7 +298,7 @@ const PatientSection = () => {
                                             className="hover:bg-blue-100 transition-all">
                                             <td className="px-4 py-2 border">{patient.patientId}</td>
                                             <td className="px-4 py-2 border">{patient.patientName}</td>
-                                            <td className="px-4 py-2 border">{patient.dob}</td>
+                                            <td className="px-4 py-2 border">{patient.age}</td>
                                             <td className="px-4 py-2 border">
                                                 <img src={patient.patientImg || ''} alt="nurse Image"
                                                      className="w-[60px] h-[60px] object-cover rounded-full"/>
