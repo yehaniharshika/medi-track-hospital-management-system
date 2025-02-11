@@ -3,7 +3,7 @@ import {Container, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {motion} from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
@@ -19,14 +19,23 @@ const NurseSection = () => {
     const [nurseId, setNurseId] = useState("");
     const [nurseName, setNurseName] = useState("");
     const [nurseImg, setNurseImg] = useState<string | null>(null);
-    const [dob, setDob] = useState("");
     const [gender, setGender] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [qualification, setQualification] = useState("");
     const [email, setEmail] = useState("");
+    const [departmentId,setDepartmentId] = useState("");
+    const [departmentIds, setDepartmentIds] = useState<string[]>([]);
+
     const dispatch = useDispatch();
 
     const nurses = useSelector((state: RootState) => state.nurses.nurses);
+    const departments = useSelector((state: RootState) => state.departments.departments);
+
+    useEffect(() => {
+        const departmentIdArray = departments.map((dep) => dep.departmentId);
+        setDepartmentIds(departmentIdArray);
+    }, [departments]);
+
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -42,29 +51,29 @@ const NurseSection = () => {
         setNurseId(nurse.nurseId);
         setNurseName(nurse.nurseName);
         setNurseImg(nurse.nurseImg);
-        setDob(nurse.dob);
         setGender(nurse.gender);
         setContactNumber(nurse.contactNumber);
         setQualification(nurse.qualification);
         setEmail(nurse.email);
+        setDepartmentId(nurse.departmentId);
         setShow(true);
     };
 
     const resetForm = () => {
         setNurseId('');
         setNurseName('');
-        setDob('');
         setNurseImg(null);
         setGender('');
         setContactNumber('');
         setQualification('');
         setEmail('');
+        setDepartmentId('');
     };
 
 
     const handleAddNurse = () => {
         dispatch(
-            addNurse({nurseId, nurseName, nurseImg, dob, gender, contactNumber, qualification, email})
+            addNurse({nurseId, nurseName, nurseImg, gender, contactNumber, qualification, email,departmentId})
         );
         resetForm();
         handleClose();
@@ -72,7 +81,7 @@ const NurseSection = () => {
 
 
     const handleUpdateNurse = () => {
-        dispatch(updateNurse({nurseId, nurseName, nurseImg, dob, gender, contactNumber, qualification, email})
+        dispatch(updateNurse({nurseId, nurseName, nurseImg, gender, contactNumber, qualification, email,departmentId})
         );
         resetForm();
         handleClose();
@@ -112,14 +121,11 @@ const NurseSection = () => {
                                                 className="font-bold text-2xl text-neutral-100"
                                                 style={{fontFamily: "'Ubuntu', sans-serif",
                                                     fontWeight: "bold"}}
-                                                initial={{scale: 0.8, opacity: 0}}
-                                                animate={{scale: 1, opacity: 1}}
-                                                transition={{
+                                                initial={{scale: 0.8, opacity: 0}} animate={{scale: 1, opacity: 1}} transition={{
                                                     delay: 0.2,
                                                     duration: 0.6,
                                                     ease: "easeOut",
-                                                }}
-                                            >
+                                                }}>
                                                 Nurse Management
                                             </motion.h4>
                                         </Row>
@@ -158,12 +164,6 @@ const NurseSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Full Name</Form.Label>
                                         <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="text" value={nurseName} placeholder="Enter full name" onChange={e => setNurseName(e.target.value)}/>
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Date Of Birth</Form.Label>
-                                        <Form.Control className="border-2 border-black font-normal" style={{ fontFamily: "'Montserrat', serif" ,
-                                            fontSize: "15px"}}  type="date" value={dob} onChange={e => setDob(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
@@ -228,6 +228,24 @@ const NurseSection = () => {
                                                       value={email} onChange={e => setEmail(e.target.value)}/>
                                     </Form.Group>
 
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            Department Id
+                                        </Form.Label>
+                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
+                                            <option value="">Select Department Id</option>
+                                            {departmentIds.map((depId) => (
+                                                <option key={depId} value={depId}>
+                                                    {depId}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Department Name</Form.Label>
+                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                    </Form.Group>
+
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>
@@ -267,11 +285,11 @@ const NurseSection = () => {
                                                 <img src={nurse.nurseImg || ''} alt="nurse Image"
                                                      className="w-[60px] h-[60px] object-cover rounded-full"/>
                                             </td>
-                                            <td className="px-4 py-2 border">{nurse.dob}</td>
                                             <td className="px-4 py-2 border">{nurse.gender}</td>
                                             <td className="px-4 py-2 border">{nurse.contactNumber}</td>
                                             <td className="px-4 py-2 border">{nurse.qualification}</td>
                                             <td className="px-4 py-2 border">{nurse.email}</td>
+                                            <td className="px-4 py-2 border">{nurse.departmentId}</td>
                                             <td className="px-4 py-2 border flex justify-center gap-2 h-[80px]">
                                                 <button
                                                     className="bg-red-500 text-white px-3 h-[40px] py-1 rounded-md hover:bg-red-700"
