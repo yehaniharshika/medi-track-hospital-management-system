@@ -10,15 +10,35 @@ const api = axios.create({
 
 export const savePatient = createAsyncThunk(
     'patient/savePatient',
-    async (patient : Patient) => {
+    async (formData: FormData) => {
         try {
-            const response = await api.post('/add', patient);
+            const response = await api.post('/add', formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             return response.data;
-        }catch (error){
-            return console.log("error",error);
+        } catch (error) {
+            console.log("Error saving patient:", error);
+            throw error;
         }
     }
 );
+
+export const updatePatient = createAsyncThunk(
+    'patient/updatePatient',
+    async (formData: FormData) => {
+        try {
+            // Send the PUT request with FormData
+            const response = await api.put(`/update/${formData.get('patientId')}`, formData);
+
+            return response.data;
+        } catch (error) {
+            console.error("Error updating patient:", error);
+            throw error; // Throw error to be handled by createAsyncThunk
+        }
+    }
+);
+
+
 
 export const deletePatient = createAsyncThunk(
     'patient/deletePatient',
@@ -32,17 +52,7 @@ export const deletePatient = createAsyncThunk(
     }
 );
 
-export const updatePatient = createAsyncThunk(
-    'patient/updatePatient',
-    async (patient : Patient) =>{
-        try {
-            const response = await api.put(`/update/${patient.patientId}`,patient);
-            return response.data;
-        }catch (error){
-            return console.log("error",error);
-        }
-    }
-);
+
 
 export const getPatients = createAsyncThunk(
     'patient/getPatients',
