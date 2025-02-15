@@ -3,13 +3,13 @@ import {Container, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {motion} from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
 import {Patient} from "../models/Patient.ts";
-import {addPatient, deletePatient, updatePatient} from "../reducers/PatientSlice.ts";
+import {deletePatient, getPatients, savePatient, updatePatient} from "../reducers/PatientSlice.ts";
 
 const PatientSection = () => {
 
@@ -20,7 +20,6 @@ const PatientSection = () => {
     const [patientId, setPatientId] = useState("");
     const [patientName, setPatientName] = useState("");
     const [age,setAge] = useState("");
-    const [patientImg, setPatientImg] = useState<string | null>(null);
     const [addressLine1,setAddressLine1] = useState("");
     const [addressLine2,setAddressLine2] = useState("");
     const [postalCode,setPostalCode] = useState("");
@@ -29,26 +28,37 @@ const PatientSection = () => {
     const [blood_type, setBlood_type] = useState("");
     const [chronic_diseases, setChronic_diseases] = useState("");
     const [last_visit_date, setLast_visit_date] = useState("");
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const patients = useSelector((state: RootState) => state.patients);
+    const [patientImg, setPatientImg] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setPatientImg(file);
+
+            // For image preview
             const reader = new FileReader();
             reader.onload = () => {
-                setImage(reader.result as string);
+                setPreviewImage(reader.result as string); // Store Base64 for preview
             };
             reader.readAsDataURL(file);
         }
     };
 
+
+    useEffect(() => {
+        dispatch(getPatients());
+    }, [dispatch]);
+
     const handleEditPatient = (patient: Patient) => {
         setPatientId(patient.patientId);
         setPatientName(patient.patientName);
         setAge(patient.age);
-        setPatientImg(patient.patientImg);
+        setPreviewImage(patient.patientImg); // Store Base64 for preview
+        setPatientImg(null); // No file selected initially
         setAddressLine1(patient.addressLine1);
         setAddressLine2(patient.addressLine2);
         setPostalCode(patient.postalCode);
@@ -59,6 +69,7 @@ const PatientSection = () => {
         setLast_visit_date(patient.last_visit_date);
         setShow(true);
     };
+
 
     const resetForm = () => {
         setPatientId('');
@@ -77,20 +88,62 @@ const PatientSection = () => {
 
 
     const handleAddPatient = () => {
-        dispatch(
-            addPatient({patientId,patientName,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
-        );
+        const formData = new FormData();
+        formData.append("patientId", patientId);
+        formData.append("patientName", patientName);
+        formData.append("age", age);
+        formData.append("addressLine1", addressLine1);
+        formData.append("addressLine2", addressLine2);
+        formData.append("postalCode", postalCode);
+        formData.append("gender", gender);
+        formData.append("contactNumber", contactNumber);
+        formData.append("blood_type", blood_type);
+        formData.append("chronic_diseases", chronic_diseases);
+        formData.append("last_visit_date", last_visit_date);
+
+        if (patientImg) {
+            formData.append("patientImg", patientImg);
+        }
+
+        dispatch(savePatient(formData)).then(() => {
+            dispatch(getPatients());
+        });
+
         resetForm();
         handleClose();
-    }
+    };
+
 
 
     const handleUpdatePatient = () => {
-        dispatch(updatePatient({patientId,patientName,age,patientImg,addressLine1,addressLine2,postalCode,gender,contactNumber,blood_type,chronic_diseases,last_visit_date})
-        );
+        const formData = new FormData();
+        formData.append("patientId", patientId);
+        formData.append("patientName", patientName);
+        formData.append("age", age);
+        formData.append("addressLine1", addressLine1);
+        formData.append("addressLine2", addressLine2);
+        formData.append("postalCode", postalCode);
+        formData.append("gender", gender);
+        formData.append("contactNumber", contactNumber);
+        formData.append("blood_type", blood_type);
+        formData.append("chronic_diseases", chronic_diseases);
+        formData.append("last_visit_date", last_visit_date);
+
+        // Append the image if it exists
+        if (patientImg) {
+            formData.append("patientImg", patientImg); // assuming patientImg is a file
+        }
+
+        // Dispatch the updatePatient action with FormData
+        dispatch(updatePatient(formData)).then(() => {
+            dispatch(getPatients()); // Refresh the list of patients after update
+        });
+
         resetForm();
         handleClose();
-    }
+    };
+
+
 
 
     const handleDeletePatient = (event: React.MouseEvent<HTMLButtonElement>, patientId: string) => {
@@ -179,16 +232,18 @@ const PatientSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>
                                         <div className="image-box">
-                                            {patientImg ? (
-                                                <img src={patientImg} alt="Crop Image 1"/>
+                                            {previewImage ? (
+                                                <img src={previewImage} alt="Preview"/>
                                             ) : (
-                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>No Image Selected</div>
+                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px"}}>No Image Selected</div>
                                             )}
                                         </div>
-                                        <Button className="choose-image-btn" as="label">Choose Image
-                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setPatientImg)} hidden/>
+                                        <Button className="choose-image-btn" as="label">
+                                            Choose Image
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
+
 
                                     <Row className="mb-3">
                                         <Col md={6}>
@@ -300,8 +355,13 @@ const PatientSection = () => {
                                             <td className="px-4 py-2 border">{patient.patientName}</td>
                                             <td className="px-4 py-2 border">{patient.age}</td>
                                             <td className="px-4 py-2 border">
-                                                <img src={patient.patientImg || ''} alt="nurse Image"
-                                                     className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                {patient.patientImg ? (
+                                                    <img src={`data:image/jpeg;base64,${patient.patientImg}`}
+                                                         alt="Patient Image"
+                                                         className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                ) : (
+                                                    <span>No Image</span>
+                                                )}
                                             </td>
                                             <td className="px-4 py-2 border">{patient.addressLine1}</td>
                                             <td className="px-4 py-2 border">{patient.addressLine2}</td>
