@@ -24,7 +24,7 @@ const DepartmentSection = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const dispatch = useDispatch();
 
-    const departments = useSelector((state: RootState) => state.departments.departments);
+    const departments = useSelector((state: RootState) => state.departments);
 
 
     const handleEditDepartment = (department: Department) => {

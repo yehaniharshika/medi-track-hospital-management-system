@@ -31,7 +31,7 @@ const PatientSection = () => {
     const [last_visit_date, setLast_visit_date] = useState("");
     const dispatch = useDispatch();
 
-    const patients = useSelector((state: RootState) => state.patients.patients);
+    const patients = useSelector((state: RootState) => state.patients);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
         const file = event.target.files?.[0];

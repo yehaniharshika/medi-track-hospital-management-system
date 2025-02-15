@@ -1,33 +1,80 @@
 import {Patient} from "../models/Patient.ts";
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
+import axios from "axios";
 
-export interface PatientState {
-    patients: Patient[];
-}
+export const initialState: Patient[] = [];
 
-const initialState: PatientState = {
-    patients: [],
-}
+const api = axios.create({
+    baseURL : "http://localhost:3003/patient"
+});
+
+export const savePatient = createAsyncThunk(
+    'patient/savePatient',
+    async (patient : Patient) => {
+        try {
+            const response = await api.post('/add', patient);
+            return response.data;
+        }catch (error){
+            return console.log("error",error);
+        }
+    }
+);
+
+export const deletePatient = createAsyncThunk(
+    'patient/deletePatient',
+    async (patientId : string) =>{
+        try {
+            const response = await api.delete(`/delete/${patientId}`);
+            return response.data;
+        }catch (error){
+            return console.log("error",error);
+        }
+    }
+);
+
+export const updatePatient = createAsyncThunk(
+    'patient/updatePatient',
+    async (patient : Patient) =>{
+        try {
+            const response = await api.put(`/update/${patient.patientId}`,patient);
+            return response.data;
+        }catch (error){
+            return console.log("error",error);
+        }
+    }
+);
+
+export const getPatients = createAsyncThunk(
+    'patient/getPatients',
+    async () =>{
+        try {
+            const response = await api.get('/view');
+            return response.data;
+        }catch (error){
+            return console.log("error",error);
+        }
+    }
+)
 
 const patientSlice = createSlice({
     name: 'patient',
     initialState,
     reducers: {
         addPatient: (state, action: PayloadAction<Patient>) => {
-            state.patients.push(action.payload);
+            state.push(action.payload);
         },
 
         updatePatient: (state, action: PayloadAction<Patient>) => {
-            const index = state.patients.findIndex(
+            const index = state.findIndex(
                 (patient) => patient.patientId === action.payload.patientId);
 
             if (index !== -1) {
-                state.patients[index] = action.payload;
+                state[index] = action.payload;
             }
         },
 
         deletePatient: (state, action: PayloadAction<string>) => {
-            state.patients = state.patients.filter((patient) => patient.patientId !== action.payload);
+            return state.filter((patient) => patient.patientId !== action.payload);
         },
     },
 });
