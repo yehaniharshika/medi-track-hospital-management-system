@@ -60,11 +60,11 @@ const patientSlice = createSlice({
     name: 'patient',
     initialState,
     reducers: {
-        addPatient: (state, action: PayloadAction<Patient>) => {
+        addedPatient: (state, action: PayloadAction<Patient>) => {
             state.push(action.payload);
         },
 
-        updatePatient: (state, action: PayloadAction<Patient>) => {
+        updatedPatient: (state, action: PayloadAction<Patient>) => {
             const index = state.findIndex(
                 (patient) => patient.patientId === action.payload.patientId);
 
@@ -73,11 +73,74 @@ const patientSlice = createSlice({
             }
         },
 
-        deletePatient: (state, action: PayloadAction<string>) => {
+        deletedPatient: (state, action: PayloadAction<string>) => {
             return state.filter((patient) => patient.patientId !== action.payload);
         },
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(savePatient.fulfilled, (state, action) => {
+                state.push(action.payload);
+            })
+
+            .addCase(savePatient.pending, (_, action) => {
+                console.error("Pending save Patient",action.payload);
+            })
+
+            .addCase(savePatient.rejected, (_, action) => {
+                console.error("Failed to save Patient:", action.payload);
+            });
+
+        builder
+            .addCase(deletePatient.rejected, (_, action) => {
+                console.error("Failed to delete Patient:", action.payload);
+            })
+
+            .addCase(deletePatient.pending, (_, action) => {
+                console.log("Pending delete Patient",action.payload);
+            })
+
+            .addCase(deletePatient.fulfilled, (state, action) => {
+                return state = state.filter((patient:Patient)=> patient.patientId !== action.payload.patientId);
+            });
+
+
+        builder
+            .addCase(updatePatient.rejected, (_, action) => {
+                console.error("Failed to update Patient:", action.payload);
+            })
+            .addCase(updatePatient.fulfilled, (state, action) => {
+                const patient = state.find((patient:Patient) => patient.patientId === action.payload.patientId);
+                if (patient) {
+                    patient.patientName = action.payload.patientName;
+                    patient.age = action.payload.age;
+                    patient.patientImg = action.payload.patientImg;
+                    patient.addressLine1 = action.payload.addressLine1;
+                    patient.addressLine2 = action.payload.addressLine2;
+                    patient.postalCode = action.payload.postalCode;
+                    patient.gender = action.payload.gender;
+                    patient.contactNumber = action.payload.contactNumber;
+                    patient.blood_type = action.payload.blood_type;
+                    patient.chronic_diseases = action.payload.chronic_diseases;
+                    patient.last_visit_date = action.payload.last_visit_date;
+                }
+            })
+            .addCase(updatePatient.pending, (_, action) => {
+                console.log("Pending update Patient:", action.payload);
+            });
+
+        builder
+            .addCase(getPatients.fulfilled, (_, action) => {
+                return action.payload;
+            })
+            .addCase(getPatients.pending, (_, action) => {
+                console.log("Pending get Patient:", action.payload);
+            })
+            .addCase(getPatients.rejected, (_, action) => {
+                console.error("Failed to get patients:", action.payload);
+            })
+    }
 });
 
-export const {addPatient, updatePatient, deletePatient} = patientSlice.actions;
+export const {addedPatient, updatedPatient, deletedPatient} = patientSlice.actions;
 export default patientSlice.reducer;
