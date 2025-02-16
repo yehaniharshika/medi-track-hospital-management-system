@@ -48,17 +48,43 @@ const PatientSection = () => {
         }
     };
 
+    const generateNextId = (existingPatients: Patient[]) => {
+        if (!existingPatients || existingPatients.length === 0) {
+            return 'P001'; // Default start
+        }
+
+        // Filter valid patient IDs
+        const ids = existingPatients
+            .map(p => p.patientId ? Number(p.patientId.replace('P', '')) : 0)
+            .filter(num => !isNaN(num)); // Remove invalid IDs
+
+        if (ids.length === 0) {
+            return 'P001'; // Default if no valid IDs
+        }
+
+        const maxId = Math.max(...ids); // Get the highest numeric ID
+        const nextId = `P${String(maxId + 1).padStart(3, '0')}`; // Increment and format
+        return nextId;
+    };
+
 
     useEffect(() => {
         dispatch(getPatients());
     }, [dispatch]);
 
+    useEffect(() => {
+        if (patients.length > 0) {
+            const initialPatientId = generateNextId(patients);
+            setPatientId(initialPatientId);
+        }
+    }, [patients]);
+
     const handleEditPatient = (patient: Patient) => {
         setPatientId(patient.patientId);
         setPatientName(patient.patientName);
         setAge(patient.age);
-        setPreviewImage(patient.patientImg); // Store Base64 for preview
-        setPatientImg(null); // No file selected initially
+        setPreviewImage(patient.patientImg ? `data:image/jpeg;base64,${patient.patientImg}` : null); // Ensure correct format
+        setPatientImg(null); // Reset file selection
         setAddressLine1(patient.addressLine1);
         setAddressLine2(patient.addressLine2);
         setPostalCode(patient.postalCode);
@@ -110,9 +136,9 @@ const PatientSection = () => {
         });
 
         resetForm();
+        setPatientId(generateNextId(patients));
         handleClose();
     };
-
 
 
     const handleUpdatePatient = () => {
@@ -129,22 +155,17 @@ const PatientSection = () => {
         formData.append("chronic_diseases", chronic_diseases);
         formData.append("last_visit_date", last_visit_date);
 
-        // Append the image if it exists
         if (patientImg) {
             formData.append("patientImg", patientImg); // assuming patientImg is a file
         }
 
-        // Dispatch the updatePatient action with FormData
         dispatch(updatePatient(formData)).then(() => {
-            dispatch(getPatients()); // Refresh the list of patients after update
+            dispatch(getPatients());
         });
-
         resetForm();
+        setPatientId(generateNextId(patients));
         handleClose();
     };
-
-
-
 
     const handleDeletePatient = (event: React.MouseEvent<HTMLButtonElement>, patientId: string) => {
         event.stopPropagation();
@@ -209,7 +230,7 @@ const PatientSection = () => {
                         </div>
                         <Modal show={show} onHide={handleClose}>
                             <Modal.Header closeButton>
-                                <Modal.Title className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Nurse Details Form</Modal.Title>
+                                <Modal.Title className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Patient Details Form</Modal.Title>
                             </Modal.Header>
                             <Modal.Body className="bg-blue-300">
                                 <Form>
