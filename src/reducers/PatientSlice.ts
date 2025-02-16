@@ -27,9 +27,7 @@ export const updatePatient = createAsyncThunk(
     'patient/updatePatient',
     async (formData: FormData) => {
         try {
-            // Send the PUT request with FormData
             const response = await api.put(`/update/${formData.get('patientId')}`, formData);
-
             return response.data;
         } catch (error) {
             console.error("Error updating patient:", error);
@@ -37,8 +35,6 @@ export const updatePatient = createAsyncThunk(
         }
     }
 );
-
-
 
 export const deletePatient = createAsyncThunk(
     'patient/deletePatient',

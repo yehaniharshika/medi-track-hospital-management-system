@@ -29,7 +29,7 @@ const MedicineSection = () => {
 
     const dispatch = useDispatch();
 
-    const medicines = useSelector((state : RootState) => state.medicines.medicines);
+    const medicines = useSelector((state : RootState) => state.medicines);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
         const file = event.target.files?.[0];
