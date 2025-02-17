@@ -3,13 +3,13 @@ import {Container, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {motion} from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
 import {Department} from "../models/Department.ts";
-import {addDepartment, deleteDepartment, updateDepartment} from "../reducers/DepartmentSlice.ts";
+import {addDepartment, deleteDepartment, getDepartments, updateDepartment} from "../reducers/DepartmentSlice.ts";
 
 const DepartmentSection = () => {
     const [show, setShow] = useState(false);
@@ -22,9 +22,33 @@ const DepartmentSection = () => {
     const [location, setLocation] = useState("");
     const [headOfDepartment, setHeadOfDepartment] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const departments = useSelector((state: RootState) => state.departments);
+
+    const generateNextDepartmentId = (existingDepartments: Department[]) => {
+        if (!existingDepartments || existingDepartments.length === 0) {
+            return 'D001';
+        }
+
+        const departmentIds = existingDepartments
+            .map(d => d.departmentId ? Number(d.departmentId.replace('D', '')) : 0)
+            .filter(num => !isNaN(num)); // Remove invalid IDs
+
+        if (departmentIds.length === 0) {
+            return 'D001';
+        }
+
+        const maxId = Math.max(...departmentIds); // Get the highest numeric ID
+        return `D${String(maxId + 1).padStart(3, '0')}`; // Increment and format
+    };
+
+    useEffect(() => {
+        dispatch(getDepartments()).then((response) => {
+            const nextDepartmentId = generateNextDepartmentId(response.payload);
+            setDepartmentId(nextDepartmentId); // Automatically set the generated ID
+        });
+    }, [dispatch]);
 
 
     const handleEditDepartment = (department: Department) => {
