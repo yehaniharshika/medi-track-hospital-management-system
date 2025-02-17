@@ -5,10 +5,10 @@ export class Medicine {
     medicineImg: string | null;
     dosage_form: string;
     unit_price: string;
-    quantity_in_stock: string;
+    quantity_in_stock: number;
     expiry_date: string;
 
-    constructor(medicineId: string, medicineName: string,brand: string, medicineImg: string|null,dosage_form: string, unit_price: string, quantity_in_stock: string,expiry_date: string) {
+    constructor(medicineId: string, medicineName: string,brand: string, medicineImg: string|null,dosage_form: string, unit_price: string, quantity_in_stock: number,expiry_date: string) {
         this.medicineId = medicineId;
         this.medicineName = medicineName;
         this.brand = brand;

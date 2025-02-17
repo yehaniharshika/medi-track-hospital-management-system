@@ -112,7 +112,6 @@ const PatientSection = () => {
         setLast_visit_date('');
     };
 
-
     const handleAddPatient = () => {
         const formData = new FormData();
         formData.append("patientId", patientId);
@@ -264,6 +263,8 @@ const PatientSection = () => {
                                             <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
+
+
 
 
                                     <Row className="mb-3">

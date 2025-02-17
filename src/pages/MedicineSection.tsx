@@ -3,14 +3,13 @@ import {Container, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {motion} from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
 import {Medicine} from "../models/Medicine.ts";
-import {addMedicine, deleteMedicine, updateMedicine} from "../reducers/MedicineSlice.ts";
-
+import {deleteMedicine, getMedicines, saveMedicine, updateMedicine} from "../reducers/MedicineSlice.ts";
 
 const MedicineSection = () => {
     const [show, setShow] = useState(false);
@@ -22,31 +21,65 @@ const MedicineSection = () => {
     const [brand, setBrand] = useState("");
     const [dosage_form, setDosage_form] = useState("");
     const [unit_price, setUnit_price] = useState("");
-    const [quantity_in_stock, setQuantity_in_stock] = useState("");
+    const [quantity_in_stock, setQuantity_in_stock] = useState(0);
     const [expiry_date,setExpiry_date] = useState("");
     const [medicineImg, setMedicineImg] = useState<File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
-    const medicines = useSelector((state : RootState) => state.medicines);
+    const medicines = useSelector((state                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 : RootState) => state.medicines);
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
+    useEffect(() => {
+        if (medicines.length > 0) {
+            const initialMedicineId = generateNextMedicineId(medicines);
+            setMedicineId(initialMedicineId);
+        }
+    }, [medicines]);
+
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setMedicineImg(file);
+
+            // For image preview
             const reader = new FileReader();
             reader.onload = () => {
-                setImage(reader.result as string);
+                setPreviewImage(reader.result as string); // Store Base64 for preview
             };
             reader.readAsDataURL(file);
         }
     };
 
+    const generateNextMedicineId = (existingMedicines: Medicine[]) => {
+        if (!existingMedicines || existingMedicines.length === 0) {
+            return 'M001';
+        }
+
+        const medicineIds = existingMedicines
+            .map(m => m.medicineId ? Number(m.medicineId.replace('M', '')) : 0)
+            .filter(num => !isNaN(num)); // Remove invalid IDs
+
+        if (medicineIds.length === 0) {
+            return 'M001';
+        }
+
+        const maxId = Math.max(...medicineIds); // Get the highest numeric Id
+        const nextMedicineId = `M${String(maxId + 1).padStart(3, '0')}`; // Increment and format
+        return nextMedicineId ? nextMedicineId : nextMedicineId;
+    };
+
+    useEffect(() => {
+        dispatch(getMedicines());
+    }, [dispatch]);
+
+
     const handleEditMedicine = (medicine: Medicine) => {
         setMedicineId(medicine.medicineId);
         setMedicineName(medicine.medicineName);
         setBrand(medicine.brand);
-        setMedicineImg(medicine.medicineImg);
+        setPreviewImage(medicine.medicineImg ? `data:image/jpeg;base64,${medicine.medicineImg}` : null);
+        setMedicineImg(null);
         setDosage_form(medicine.dosage_form);
         setUnit_price(medicine.unit_price);
         setQuantity_in_stock(medicine.quantity_in_stock);
@@ -58,27 +91,59 @@ const MedicineSection = () => {
         setMedicineId('');
         setMedicineName('');
         setBrand('');
-        setMedicineImg('');
+        setMedicineImg(null);
         setDosage_form('');
         setUnit_price('');
-        setQuantity_in_stock('');
+        setQuantity_in_stock(0);
         setExpiry_date('');
     };
 
 
     const handleAddMedicine = () => {
-        dispatch(
-            addMedicine({medicineId,medicineName,brand,medicineImg,dosage_form,unit_price,quantity_in_stock,expiry_date})
-        );
+        const formData = new FormData();
+
+        formData.append("medicineId", medicineId);
+        formData.append("medicineName", medicineName);
+        formData.append("brand", brand);
+        formData.append("dosage_form", dosage_form);
+        formData.append("unit_price", unit_price);
+        formData.append("quantity_in_stock", String(quantity_in_stock));
+        formData.append("expiry_date", expiry_date);
+
+        if (medicineImg) {
+            formData.append("medicineImg", medicineImg);
+        }
+
+        dispatch(saveMedicine(formData)).then(() => {
+            dispatch(getMedicines());
+        });
+
         resetForm();
+        setMedicineId(generateNextMedicineId(medicines))
         handleClose();
     }
 
-
     const handleUpdateMedicine = () => {
-        dispatch(updateMedicine({medicineId,medicineName,brand,medicineImg,dosage_form,unit_price,quantity_in_stock,expiry_date})
-        );
+        const formData = new FormData();
+
+        formData.append("medicineId", medicineId);
+        formData.append("medicineName", medicineName);
+        formData.append("brand", brand);
+        formData.append("dosage_form", dosage_form);
+        formData.append("unit_price", unit_price);
+        formData.append("quantity_in_stock", String(quantity_in_stock));
+        formData.append("expiry_date", expiry_date);
+
+        if (medicineImg) {
+            formData.append("medicineImg", medicineImg);
+        }
+
+        dispatch(updateMedicine(formData)).then(() => {
+            dispatch(getMedicines)
+        });
+
         resetForm();
+        setMedicineId(generateNextMedicineId(medicines));
         handleClose();
     }
 
@@ -189,14 +254,15 @@ const MedicineSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>
                                         <div className="image-box">
-                                            {medicineImg ? (
-                                                <img src={medicineImg} alt="Medicine Image"/>
+                                            {previewImage ? (
+                                                <img src={previewImage} alt="Preview"/>
                                             ) : (
-                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>No Image Selected</div>
+                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px"}}>No Image Selected</div>
                                             )}
                                         </div>
-                                        <Button className="choose-image-btn" as="label">Choose Image
-                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setMedicineImg)} hidden/>
+                                        <Button className="choose-image-btn" as="label">
+                                            Choose Image
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
 
@@ -231,11 +297,14 @@ const MedicineSection = () => {
 
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>quantity in stock</Form.Label>
-                                        <Form.Control placeholder="Enter Email"
-                                                      className="border-2 border-black"
-                                                      style={{ fontFamily: "'Montserrat', serif" ,
-                                                          fontSize: "15px"}} type="number"
-                                                      value={quantity_in_stock} onChange={e => setQuantity_in_stock(e.target.value)}/>
+                                        <Form.Control
+                                            placeholder="Enter Email"
+                                            className="border-2 border-black"
+                                            style={{ fontFamily: "'Montserrat', serif", fontSize: "15px" }}
+                                            type="number"
+                                            value={quantity_in_stock}
+                                            onChange={e => setQuantity_in_stock(Number(e.target.value))}
+                                        />
                                     </Form.Group>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Expiry Date</Form.Label>
@@ -281,8 +350,13 @@ const MedicineSection = () => {
                                             <td className="px-4 py-2 border">{medicine.medicineName}</td>
                                             <td className="px-4 py-2 border">{medicine.brand}</td>
                                             <td className="px-4 py-2 border">
-                                                <img src={medicine.medicineImg || ''} alt="Doctor Image"
-                                                     className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                {medicine.medicineImg ? (
+                                                    <img src={`data:image/jpeg;base64,${medicine.medicineImg}`}
+                                                         alt="Patient Image"
+                                                         className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                ) : (
+                                                    <span>No Image</span>
+                                                )}
                                             </td>
                                             <td className="px-4 py-2 border">{medicine.dosage_form}</td>
                                             <td className="px-4 py-2 border">{medicine.unit_price}</td>

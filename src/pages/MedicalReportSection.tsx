@@ -27,7 +27,7 @@ const MedicalReportSection = () => {
     const dispatch = useDispatch();
 
 
-    const patients = useSelector((state: RootState) => state.patients.patients);
+    const patients = useSelector((state: RootState) => state.patients);
     const medicalReports = useSelector((state: RootState) => state.medicalReports.medicalReports);
 
     useEffect(() => {
