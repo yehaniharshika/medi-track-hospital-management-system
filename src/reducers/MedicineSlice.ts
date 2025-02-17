@@ -2,6 +2,7 @@ import {Medicine} from "../models/Medicine.ts";
 import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import axios from "axios";
 
+
 export const initialState: Medicine[] = [];
 
 const api = axios.create({
@@ -82,6 +83,67 @@ const medicineSlice = createSlice({
             return  state.filter((medicine) => medicine.medicineId !== action.payload);
         },
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(saveMedicine.fulfilled, (state, action) => {
+                state.push(action.payload);
+            })
+
+            .addCase(saveMedicine.pending, (_, action) => {
+                console.error("Pending save Medicine",action.payload);
+            })
+
+            .addCase(saveMedicine.rejected, (_, action) => {
+                console.error("Failed to save Medicine:", action.payload);
+            });
+
+        builder
+            .addCase(deleteMedicine.rejected, (_, action) => {
+                console.error("Failed to delete Medicine:", action.payload);
+            })
+
+            .addCase(deleteMedicine.pending, (_, action) => {
+                console.log("Pending delete Medicine",action.payload);
+            })
+
+            .addCase(deleteMedicine.fulfilled, (state, action) => {
+                return state = state.filter((medicine:Medicine)=> medicine.medicineId !== action.payload.medicineId);
+            });
+
+        builder
+            .addCase(updateMedicine.rejected, (_, action) => {
+                console.error("Failed to update Medicine:", action.payload);
+            })
+
+            .addCase(updateMedicine.fulfilled, (state, action) => {
+                const medicine = state.find((medicine:Medicine) => medicine.medicineId === action.payload.medicineId);
+                if (medicine) {
+                    medicine.medicineName = action.payload.medicineName;
+                    medicine.brand = action.payload.brand;
+                    medicine.medicineImg = action.payload.medicineImg;
+                    medicine.dosage_form = action.payload.dosage_form;
+                    medicine.unit_price = action.payload.unit_price;
+                    medicine.quantity_in_stock = action.payload.quantity_in_stock;
+                    medicine.expiry_date = action.payload.expiry_date;
+                }
+            })
+
+            .addCase(updateMedicine.pending, (_, action) => {
+                console.log("Pending update Medicine:", action.payload);
+            });
+
+        builder
+            .addCase(getMedicines.fulfilled, (_, action) => {
+                return action.payload;
+            })
+            .addCase(getMedicines.pending, (_, action) => {
+                console.log("Pending get Medicine:", action.payload);
+            })
+            .addCase(getMedicines.rejected, (_, action) => {
+                console.error("Failed to get Medicines:", action.payload);
+            })
+
+    }
 });
 
 export const {addedMedicine, updatedMedicine, deletedMedicine} = medicineSlice.actions;

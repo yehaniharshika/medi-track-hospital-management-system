@@ -20,12 +20,12 @@ const MedicineSection = () => {
     const [medicineId, setMedicineId] = useState("");
     const [medicineName, setMedicineName] = useState("");
     const [brand, setBrand] = useState("");
-    const [medicineImg, setMedicineImg] = useState<string | null>(null);
     const [dosage_form, setDosage_form] = useState("");
     const [unit_price, setUnit_price] = useState("");
     const [quantity_in_stock, setQuantity_in_stock] = useState("");
     const [expiry_date,setExpiry_date] = useState("");
-
+    const [medicineImg, setMedicineImg] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const dispatch = useDispatch();
 
