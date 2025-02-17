@@ -9,7 +9,12 @@ import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Department} from "../models/Department.ts";
-import {addDepartment, deleteDepartment, getDepartments, updateDepartment} from "../reducers/DepartmentSlice.ts";
+import {
+    deleteDepartment,
+    getDepartments,
+    saveDepartment,
+    updateDepartment
+} from "../reducers/DepartmentSlice.ts";
 
 const DepartmentSection = () => {
     const [show, setShow] = useState(false);
@@ -72,19 +77,33 @@ const DepartmentSection = () => {
 
 
     const handleAddDepartment = () => {
-        dispatch(
-            addDepartment({departmentId,departmentName,departmentEmail,location,headOfDepartment,phoneNumber})
-        );
+        if (!departmentId || !departmentName || !departmentEmail || !location || !headOfDepartment || !phoneNumber) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const newDepartment = {departmentId,departmentName,departmentEmail,location,headOfDepartment,phoneNumber};
+        dispatch(saveDepartment(newDepartment)).then(() => {
+            dispatch(getDepartments());
+        });
         resetForm();
+        setDepartmentId(generateNextDepartmentId(departments));
         handleClose();
     }
 
 
     const handleUpdateDepartment = () => {
-        dispatch(
-            updateDepartment({departmentId,departmentName,departmentEmail,location,headOfDepartment,phoneNumber})
-        );
+        if (!departmentId || !departmentName || !departmentEmail || !location || !headOfDepartment || !phoneNumber) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const updatedDepartment = {departmentId,departmentName,departmentEmail,location,headOfDepartment,phoneNumber};
+        dispatch(updateDepartment(updatedDepartment)).then(() => {
+            dispatch(getDepartments());
+        });
         resetForm();
+        setDepartmentId(generateNextDepartmentId(departments));
         handleClose();
     }
 
