@@ -139,7 +139,7 @@ const MedicineSection = () => {
         }
 
         dispatch(updateMedicine(formData)).then(() => {
-            dispatch(getMedicines)
+            dispatch(getMedicines());
         });
 
         resetForm();
