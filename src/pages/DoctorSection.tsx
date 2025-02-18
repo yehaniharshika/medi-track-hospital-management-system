@@ -3,7 +3,7 @@ import {Container, FormControl, InputGroup, Modal} from "react-bootstrap";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {motion} from "framer-motion";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
@@ -23,6 +23,8 @@ const DoctorSection = () => {
     const [gender, setGender] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [email, setEmail] = useState("");
+    const [departmentId, setDepartmentId] = useState("");
+    const [departmentIds, setDepartmentId] = useState<string[]>([]);
     const dispatch = useDispatch();
 
     const doctors = useSelector((state : RootState) => state.doctors.doctors);
@@ -36,6 +38,11 @@ const DoctorSection = () => {
             reader.readAsDataURL(file);
         }
     };
+
+    useEffect(() => {
+        const patientIdArray = patients.map((p) => p.patientId);
+        setPatientIds(patientIdArray);
+    }, [patients]);
 
     const handleEditDoctor = (doctor: Doctor) => {
         setDoctorId(doctor.doctorId);
@@ -162,6 +169,20 @@ const DoctorSection = () => {
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Doctor ID</Form.Label>
                                         <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
                                                       value={doctorId} onChange={e => setDoctorId(e.target.value)}/>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            Department Id
+                                        </Form.Label>
+                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
+                                            <option value="">Select Department Id</option>
+                                            {departmentIds.map((depid) => (
+                                                <option key={depid} value={depid}>
+                                                    {depid}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">

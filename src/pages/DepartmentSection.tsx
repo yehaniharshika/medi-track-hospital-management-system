@@ -9,12 +9,7 @@ import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Department} from "../models/Department.ts";
-import {
-    deleteDepartment,
-    getDepartments,
-    saveDepartment,
-    updateDepartment
-} from "../reducers/DepartmentSlice.ts";
+import {deleteDepartment, getDepartments, saveDepartment, updateDepartment} from "../reducers/DepartmentSlice.ts";
 
 const DepartmentSection = () => {
     const [show, setShow] = useState(false);
@@ -44,14 +39,14 @@ const DepartmentSection = () => {
             return 'D001';
         }
 
-        const maxId = Math.max(...departmentIds); // Get the highest numeric ID
-        return `D${String(maxId + 1).padStart(3, '0')}`; // Increment and format
+        const maxId = Math.max(...departmentIds);
+        return `D${String(maxId + 1).padStart(3, '0')}`; //increment and format
     };
 
     useEffect(() => {
         dispatch(getDepartments()).then((response) => {
             const nextDepartmentId = generateNextDepartmentId(response.payload);
-            setDepartmentId(nextDepartmentId); // Automatically set the generated ID
+            setDepartmentId(nextDepartmentId); //automatically set the generated ID
         });
     }, [dispatch]);
 
