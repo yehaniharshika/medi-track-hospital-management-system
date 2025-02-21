@@ -58,7 +58,8 @@ export const getDoctors = createAsyncThunk(
             console.error("Error:", error);
         }
     }
-)
+);
+
 const doctorSlice = createSlice({
     name: 'doctor',
     initialState,
