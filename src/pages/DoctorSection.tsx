@@ -7,10 +7,10 @@ import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
-import {addDoctor, deleteDoctor, getDoctors, saveDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
+import { deleteDoctor, getDoctors, saveDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
 import {Doctor} from "../models/Doctor.ts";
-import {getMedicines} from "../reducers/MedicineSlice.ts";
+import {Medicine} from "../models/Medicine.ts";
 
 const DoctorSection = () => {
     const [show, setShow] = useState(false);
@@ -20,26 +20,47 @@ const DoctorSection = () => {
     const [doctorId, setDoctorId] = useState("");
     const [doctorName, setDoctorName] = useState("");
     const [specialty, setSpecialty] = useState("");
-    const [doctorImg, setDoctorImg] = useState<string | null>(null);
+    const [doctorImg, setDoctorImg] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [gender, setGender] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [email, setEmail] = useState("");
     const [departmentId, setDepartmentId] = useState("");
     const [departmentIds, setDepartmentIds] = useState<string[]>([]);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const doctors = useSelector((state : RootState) => state.doctors);
     const departments = useSelector((state: RootState) => state.departments);
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setDoctorImg(file);
+
             const reader = new FileReader();
             reader.onload = () => {
-                setImage(reader.result as string);
+                setPreviewImage(reader.result as string); // Store Base64 for preview
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const generateNextDoctorId = (existingDoctors: Doctor[]) => {
+        if (!existingDoctors || existingDoctors.length === 0) {
+            return 'DOC001';
+        }
+
+        const doctorIds = existingDoctors
+            .map(d => d.doctorId ? Number(d.doctorId.replace('D', '')) : 0)
+            .filter(num => !isNaN(num));
+
+        if (doctorIds.length === 0) {
+            return 'DOC001';
+        }
+
+        const maxId = Math.max(...doctorIds); // Get the highest numeric Id
+        const nextDoctorId = `DOC${String(maxId + 1).padStart(3, '0')}`;
+        return nextDoctorId ? nextDoctorId : nextDoctorId;
     };
 
 
@@ -87,7 +108,7 @@ const DoctorSection = () => {
         formData.append("email", email);
         formData.append("departmentId", departmentId);
 
-        if (doctorImg) {
+        if (doctorImg !== null && doctorImg.length < 0) {
             formData.append("doctorImg", doctorImg);
         }
 
@@ -95,20 +116,31 @@ const DoctorSection = () => {
             dispatch(getDoctors());
         });
 
+        resetForm();
+        setDoctorId(generateNextDoctorId(doctors));
         handleClose();
-    }
-
+    };
 
     const handleUpdateDoctor = () => {
-        dispatch(updateDoctor({doctorId,doctorName,specialty,doctorImg,gender,contactNumber,email})
-        );
-        setDoctorId('');
-        setDoctorName('');
-        setSpecialty('');
-        setDoctorImg(null);
-        setGender('');
-        setContactNumber('');
-        setEmail('');
+        const formData = new FormData();
+
+        formData.append("doctorId", doctorId);
+        formData.append("doctorName", doctorName);
+        formData.append("specialty", specialty);
+        formData.append("gender", gender);
+        formData.append("contactNumber", contactNumber);
+        formData.append("email", email);
+        formData.append("departmentId", departmentId);
+
+        if (doctorImg !== null && doctorImg.length < 0) {
+            formData.append("doctorImg", doctorImg);
+        }
+
+        dispatch(updateDoctor(formData)).then(() => {
+            dispatch(getDoctors());
+        });
+        resetForm();
+        setDoctorId(generateNextDoctorId(doctors));
         handleClose();
     }
 

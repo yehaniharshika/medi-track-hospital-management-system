@@ -42,7 +42,6 @@ const MedicineSection = () => {
         if (file) {
             setMedicineImg(file);
 
-            // For image preview
             const reader = new FileReader();
             reader.onload = () => {
                 setPreviewImage(reader.result as string); // Store Base64 for preview
