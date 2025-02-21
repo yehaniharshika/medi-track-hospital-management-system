@@ -7,11 +7,12 @@ import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
 import {Appointment} from "../models/Appointment.ts";
-import {addAppointment, deleteAppointment, updateAppointment} from "../reducers/AppointmentSlice.ts";
+import {addAppointment, deleteAppointment, getAppointments, updateAppointment} from "../reducers/AppointmentSlice.ts";
 import {PiMicrosoftExcelLogoFill} from "react-icons/pi";
 import {SlCalender} from "react-icons/sl";
+
 
 const AppointmentSection = () => {
     const [show, setShow] = useState(false);
@@ -25,24 +26,64 @@ const AppointmentSection = () => {
     const [doctorId, setDoctorId] = useState("");
     const [patientIds, setPatientIds] = useState<string[]>([]);
     const [doctorIds,setDoctorIds] = useState<string[]>([]);
+    const [patientName, setPatientName] = useState("");
+    const [patientTel, setPatientTel] = useState("");
+    const [age, setAge] = useState("");
+    const [doctorName, setDoctorName] = useState("");
+    const [doctorTel, setDoctorTel] = useState("");
     const [appointmentType, setAppointmentType] = useState("");
     const [appointmentStatus, setAppointmentStatus] = useState("");
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
+    const appointments = useSelector((state: RootState) => state.appointments);
+    const patients = useSelector((state: RootState) => state.patients);
+    const doctors = useSelector((state: RootState) => state.doctors);
 
-    const appointments = useSelector((state: RootState) => state.appointments.appointments);
-    const patients = useSelector((state: RootState) => state.patients.patients);
-    const doctors = useSelector((state: RootState) => state.doctors.doctors);
+    const generateNextAppointmentCode = (existingAppointments : Appointment[]) => {
+        if (!existingAppointments || existingAppointments.length === 0) {
+            return 'AC001';
+        }
+
+        const appointmentCodes = existingAppointments
+            .map(app => app.appointmentCode ? Number(app.appointmentCode.replace('AC', '')) : 0)
+            .filter(num => !isNaN(num));
+
+        if (appointmentCodes.length === 0) {
+            return 'AC001';
+        }
+
+        const maxId = Math.max(...appointmentCodes);
+        return `AC${String(maxId + 1).padStart(3, '0')}`;
+    };
 
     useEffect(() => {
+        // Load Patient IDs
         const patientIdArray = patients.map((p) => p.patientId);
         setPatientIds(patientIdArray);
-    }, [patients]);
 
-    useEffect(() => {
-        const doctorIdArray = doctors.map((d) => d.doctorId);
+        // Set Selected Patient Details
+        const selectedPatient = patients.find(p => p.patientId === patientId);
+        setPatientName(selectedPatient ? selectedPatient.patientName : '');
+        setAge(selectedPatient ? selectedPatient.age : '');
+        setPatientTel(selectedPatient ? selectedPatient.contactNumber : '');
+
+        // Load Doctor IDs
+        const doctorIdArray = doctors.map((doc) => doc.doctorId);
         setDoctorIds(doctorIdArray);
-    }, [doctors]);
+
+        // Update Selected Doctor Details
+        const selectedDoctor = doctors.find(doc => doc.doctorId === doctorId);
+        setDoctorName(selectedDoctor ? selectedDoctor.doctorName : '');
+        setDoctorTel(selectedDoctor ? selectedDoctor.contactNumber : '');
+
+        // Fetch Medical Reports and Generate ID
+        dispatch(getAppointments()).then((response) => {
+            const nextAppointmentCode = generateNextAppointmentCode(response.payload);
+            setAppointmentCode(nextAppointmentCode); // Automatically set the generated Appointment Code
+        });
+
+    }, [patients, patientId, doctors, doctorId, dispatch]);
+
 
     const handleEditAppointment = (appointment: Appointment) => {
         setAppointmentCode(appointment.appointmentCode);
@@ -162,17 +203,14 @@ const AppointmentSection = () => {
                             <Modal.Body className="bg-blue-300">
                                 <Form>
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment
-                                            Code</Form.Label>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment Code</Form.Label>
                                         <Form.Control className="border-2 border-black"
-                                                      style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
-                                                      value={appointmentCode}
+                                                      style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "550" , color: "darkblue"}} type="text" value={appointmentCode}
                                                       onChange={e => setAppointmentCode(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment
-                                            Date</Form.Label>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment Date</Form.Label>
                                         <Form.Control className="border-2 border-black font-normal" style={{
                                             fontFamily: "'Montserrat', serif",
                                             fontSize: "15px"
@@ -181,16 +219,13 @@ const AppointmentSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment
-                                            Time</Form.Label>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment Time</Form.Label>
                                         <Form.Control placeholder="00:00:00" className="border-2 border-black font-normal" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="time" value={appointmentTime}
                                                       onChange={e => setAppointmentTime(e.target.value)}/>
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
-                                            Patient Id
-                                        </Form.Label>
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Patient Id</Form.Label>
                                         <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
                                             <option value="">Select Patient Id</option>
                                             {patientIds.map((pid) => (
@@ -205,14 +240,22 @@ const AppointmentSection = () => {
                                         <Col md={6}>
                                             <Form.Group controlId="staff-id">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>patient Full Name</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black"  style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={patientName} readOnly/>
                                             </Form.Group>
                                         </Col>
 
                                         <Col md={6}>
                                             <Form.Group controlId="firstName">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Contact Number</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black"  style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={patientTel} readOnly/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="firstName">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Age</Form.Label>
+                                                <Form.Control className="border-2 border-black"  style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={age} readOnly/>
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -235,14 +278,14 @@ const AppointmentSection = () => {
                                         <Col md={6}>
                                             <Form.Group controlId="staff-id">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Doctor Name</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black"  style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={doctorName} readOnly/>
                                             </Form.Group>
                                         </Col>
 
                                         <Col md={6}>
                                             <Form.Group controlId="firstName">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Contact Number</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black"  style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={doctorTel} readOnly/>
                                             </Form.Group>
                                         </Col>
                                     </Row>
