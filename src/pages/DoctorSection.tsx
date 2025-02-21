@@ -11,7 +11,6 @@ import {AppDispatch, RootState} from "../store/Store.ts";
 import { deleteDoctor, getDoctors, saveDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
 import {Doctor} from "../models/Doctor.ts";
 
-
 const DoctorSection = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -72,6 +71,13 @@ const DoctorSection = () => {
         const departmentIdArray = departments.map((dep) => dep.departmentId);
         setDepartmentIds(departmentIdArray);
     }, [departments]);
+
+    useEffect(() => {
+        dispatch(getDoctors()).then((response) => {
+            const nextDoctorId = generateNextDoctorId(response.payload);
+            setDoctorId(nextDoctorId); //automatically set the generated ID
+        });
+    }, [dispatch]);
 
 
     const resetForm = () => {
@@ -238,9 +244,9 @@ const DoctorSection = () => {
                                         </Form.Label>
                                         <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
                                             <option value="">Select Department Id</option>
-                                            {departmentIds.map((depid) => (
-                                                <option key={depid} value={depid}>
-                                                    {depid}
+                                            {departmentIds.map((depId) => (
+                                                <option key={depId} value={depId}>
+                                                    {depId}
                                                 </option>
                                             ))}
                                         </Form.Select>

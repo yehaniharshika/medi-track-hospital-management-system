@@ -7,9 +7,10 @@ import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
 import {Nurse} from "../models/Nurse.ts";
-import {addNurse, deleteNurse, updateNurse} from "../reducers/NurseSlice.ts";
+import {deleteNurse, getNurses, saveNurse, updateNurse} from "../reducers/NurseSlice.ts";
+
 
 const NurseSection = () => {
     const [show, setShow] = useState(false);
@@ -18,30 +19,70 @@ const NurseSection = () => {
 
     const [nurseId, setNurseId] = useState("");
     const [nurseName, setNurseName] = useState("");
-    const [nurseImg, setNurseImg] = useState<string | null>(null);
+    const [nurseImg, setNurseImg] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [gender, setGender] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [qualification, setQualification] = useState("");
     const [email, setEmail] = useState("");
     const [departmentId,setDepartmentId] = useState("");
+    const [departmentName, setDepartmentName] = useState('');
     const [departmentIds, setDepartmentIds] = useState<string[]>([]);
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
-    const nurses = useSelector((state: RootState) => state.nurses.nurses);
-    const departments = useSelector((state: RootState) => state.departments.departments);
+    const nurses = useSelector((state: RootState) => state.nurses);
+    const departments = useSelector((state: RootState) => state.departments);
+
+    const generateNextNurseId = (existingNurses: Nurse[]) => {
+        if (!existingNurses || existingNurses.length === 0) {
+            return 'N001';
+        }
+
+        const nurseIds = existingNurses
+            .map(n => n.nurseId ? Number(n.nurseId.replace('N', '')) : 0)
+            .filter(num => !isNaN(num));
+
+        if (nurseIds.length === 0) {
+            return 'N001';
+        }
+
+        const maxId = Math.max(...nurseIds); // Get the highest numeric Id
+        const nextNurseId = `N${String(maxId + 1).padStart(3, '0')}`;
+        return nextNurseId ? nextNurseId : nextNurseId;
+    };
+
 
     useEffect(() => {
         const departmentIdArray = departments.map((dep) => dep.departmentId);
         setDepartmentIds(departmentIdArray);
     }, [departments]);
 
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, setImage: (value: string | null) => void) => {
+    useEffect(() => {
+        const selectedDepartment = departments.find(dep => dep.departmentId === departmentId);
+        setDepartmentName(selectedDepartment ? selectedDepartment.departmentName : '');
+    }, [departmentId, departments]);
+
+
+    useEffect(() => {
+        dispatch(getNurses());
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(getNurses()).then((response) => {
+            const nextNurseId = generateNextNurseId(response.payload);
+            setNurseId(nextNurseId); //automatically set the generated ID
+        });
+    }, [dispatch]);
+
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
+            setNurseImg(file);
+
             const reader = new FileReader();
             reader.onload = () => {
-                setImage(reader.result as string);
+                setPreviewImage(reader.result as string); // Store Base64 for preview
             };
             reader.readAsDataURL(file);
         }
@@ -50,7 +91,8 @@ const NurseSection = () => {
     const handleEditNurse = (nurse: Nurse) => {
         setNurseId(nurse.nurseId);
         setNurseName(nurse.nurseName);
-        setNurseImg(nurse.nurseImg);
+        setPreviewImage(nurse.nurseImg ? `data:image/jpeg;base64,${nurse.nurseImg}` : null);
+        setNurseImg(null);
         setGender(nurse.gender);
         setContactNumber(nurse.contactNumber);
         setQualification(nurse.qualification);
@@ -72,18 +114,51 @@ const NurseSection = () => {
 
 
     const handleAddNurse = () => {
-        dispatch(
-            addNurse({nurseId, nurseName, nurseImg, gender, contactNumber, qualification, email,departmentId})
-        );
+        const formData = new FormData();
+
+        formData.append("nurseId", nurseId);
+        formData.append("nurseName", nurseName);
+        formData.append("gender", gender);
+        formData.append("contactNumber", contactNumber);
+        formData.append("qualification", qualification);
+        formData.append("email", email);
+        formData.append("departmentId", departmentId);
+
+        if (nurseImg) {
+            formData.append("nurseImg", nurseImg);
+        }
+
+        dispatch(saveNurse(formData)).then(() => {
+            dispatch(getNurses());
+        });
+
         resetForm();
+        setNurseId(generateNextNurseId(nurses));
         handleClose();
     }
 
 
     const handleUpdateNurse = () => {
-        dispatch(updateNurse({nurseId, nurseName, nurseImg, gender, contactNumber, qualification, email,departmentId})
-        );
+        const formData = new FormData();
+
+        formData.append("nurseId", nurseId);
+        formData.append("nurseName", nurseName);
+        formData.append("gender", gender);
+        formData.append("contactNumber", contactNumber);
+        formData.append("qualification", qualification);
+        formData.append("email", email);
+        formData.append("departmentId", departmentId);
+
+        if (nurseImg) {
+            formData.append("nurseImg", nurseImg);
+        }
+
+        dispatch(updateNurse(formData)).then(() => {
+            dispatch(getNurses());
+        });
+
         resetForm();
+        setNurseId(generateNextNurseId(nurses));
         handleClose();
     }
 
@@ -157,7 +232,7 @@ const NurseSection = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Nurse ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text"
                                                       value={nurseId} onChange={e => setNurseId(e.target.value)}/>
                                     </Form.Group>
 
@@ -169,14 +244,15 @@ const NurseSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>
                                         <div className="image-box">
-                                            {nurseImg ? (
-                                                <img src={nurseImg} alt="Crop Image 1"/>
+                                            {previewImage ? (
+                                                <img src={previewImage} alt="Preview"/>
                                             ) : (
-                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>No Image Selected</div>
+                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px"}}>No Image Selected</div>
                                             )}
                                         </div>
-                                        <Button className="choose-image-btn" as="label">Choose Image
-                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setNurseImg)} hidden/>
+                                        <Button className="choose-image-btn" as="label">
+                                            Choose Image
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
 
@@ -232,7 +308,13 @@ const NurseSection = () => {
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                             Department Id
                                         </Form.Label>
-                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
+                                        <Form.Select
+                                            style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
+                                            className="border-2 border-black"
+                                            aria-label="Default select example"
+                                            value={departmentId}
+                                            onChange={(e) => setDepartmentId(e.target.value)}
+                                        >
                                             <option value="">Select Department Id</option>
                                             {departmentIds.map((depId) => (
                                                 <option key={depId} value={depId}>
@@ -241,11 +323,19 @@ const NurseSection = () => {
                                             ))}
                                         </Form.Select>
                                     </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Department Name</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
-                                    </Form.Group>
 
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            Department Name
+                                        </Form.Label>
+                                        <Form.Control
+                                            className="border-2 border-black"
+                                            style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
+                                            type="text"
+                                            value={departmentName}
+                                            readOnly
+                                        />
+                                    </Form.Group>
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>
@@ -282,8 +372,13 @@ const NurseSection = () => {
                                             <td className="px-4 py-2 border">{nurse.nurseId}</td>
                                             <td className="px-4 py-2 border">{nurse.nurseName}</td>
                                             <td className="px-4 py-2 border">
-                                                <img src={nurse.nurseImg || ''} alt="nurse Image"
-                                                     className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                {nurse.nurseImg ? (
+                                                    <img src={`data:image/jpeg;base64,${nurse.nurseImg}`}
+                                                         alt="nurse Image"
+                                                         className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                ) : (
+                                                    <span>No Image</span>
+                                                )}
                                             </td>
                                             <td className="px-4 py-2 border">{nurse.gender}</td>
                                             <td className="px-4 py-2 border">{nurse.contactNumber}</td>
