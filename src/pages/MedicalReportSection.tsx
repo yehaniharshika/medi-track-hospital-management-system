@@ -7,9 +7,16 @@ import {useEffect, useState} from "react";
 import "../pages/style/doctor.css";
 import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store/Store.ts";
+import {AppDispatch, RootState} from "../store/Store.ts";
 import {MedicalReport} from "../models/ MedicalReport.ts";
-import {addMedicalReport, deleteMedicalReport, updateMedicalReport} from "../reducers/MedicalReportSlice.ts";
+import {
+    addMedicalReport,
+    deleteMedicalReport,
+    getMedicalReports,
+    updateMedicalReport
+} from "../reducers/MedicalReportSlice.ts";
+import {Department} from "../models/Department.ts";
+import {getDepartments} from "../reducers/DepartmentSlice.ts";
 
 const MedicalReportSection = () => {
     const [show, setShow] = useState(false);
@@ -24,16 +31,41 @@ const MedicalReportSection = () => {
     const [reportDate, setReportDate] = useState("");
     const [notes, setNotes] = useState("");
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
 
     const patients = useSelector((state: RootState) => state.patients);
-    const medicalReports = useSelector((state: RootState) => state.medicalReports.medicalReports);
+    const doctors = useSelector((state: RootState) => state.doctors);
+    const medicalReports = useSelector((state: RootState) => state.medicalReports);
+
+    const generateNextMedicalReportId = (existingMedicalReports : MedicalReport[]) => {
+        if (!existingMedicalReports || existingMedicalReports.length === 0) {
+            return 'MR001';
+        }
+
+        const medicalReportIds = existingMedicalReports
+            .map(mr => mr.medicalReportId ? Number(mr.medicalReportId.replace('MR', '')) : 0)
+            .filter(num => !isNaN(num));
+
+        if (medicalReportIds.length === 0) {
+            return 'MR001';
+        }
+
+        const maxId = Math.max(...medicalReportIds);
+        return `MR${String(maxId + 1).padStart(3, '0')}`;
+    };
 
     useEffect(() => {
         const patientIdArray = patients.map((p) => p.patientId);
         setPatientIds(patientIdArray);
     }, [patients]);
+
+    useEffect(() => {
+        dispatch(getMedicalReports()).then((response) => {
+            const nextMedicalReportId = generateNextMedicalReportId(response.payload);
+            setMedicalReportId(nextMedicalReportId); //automatically set the generated ID
+        });
+    }, [dispatch]);
 
 
     const handleEditMedicalReport = (medicalReport: MedicalReport) => {
