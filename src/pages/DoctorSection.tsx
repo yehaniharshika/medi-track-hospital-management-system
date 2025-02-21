@@ -10,7 +10,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import { deleteDoctor, getDoctors, saveDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
 import {Doctor} from "../models/Doctor.ts";
-import {Medicine} from "../models/Medicine.ts";
+
 
 const DoctorSection = () => {
     const [show, setShow] = useState(false);
@@ -89,7 +89,8 @@ const DoctorSection = () => {
         setDoctorId(doctor.doctorId);
         setDoctorName(doctor.doctorName);
         setSpecialty(doctor.specialty);
-        setDoctorImg(doctor.doctorImg);
+        setPreviewImage(doctor.doctorImg ? `data:image/jpeg;base64,${doctor.doctorImg}` : null);
+        setDoctorImg(null);
         setGender(doctor.gender);
         setContactNumber(doctor.contactNumber);
         setEmail(doctor.email);
@@ -108,7 +109,7 @@ const DoctorSection = () => {
         formData.append("email", email);
         formData.append("departmentId", departmentId);
 
-        if (doctorImg !== null && doctorImg.length < 0) {
+        if (doctorImg) {
             formData.append("doctorImg", doctorImg);
         }
 
@@ -132,7 +133,7 @@ const DoctorSection = () => {
         formData.append("email", email);
         formData.append("departmentId", departmentId);
 
-        if (doctorImg !== null && doctorImg.length < 0) {
+        if (doctorImg) {
             formData.append("doctorImg", doctorImg);
         }
 
@@ -144,12 +145,12 @@ const DoctorSection = () => {
         handleClose();
     }
 
-    const handleDeleteDoctor = () => {
-        if (window.confirm("Are you sure you want to delete this doctor?")) {
+    const handleDeleteDoctor = (event: React.MouseEvent<HTMLButtonElement>, doctorId: string) => {
+        event.stopPropagation();
+        if (window.confirm("Are you sure you want to delete this Doctor?")) {
             dispatch(deleteDoctor(doctorId));
         }
-        handleClose();
-    }
+    };
 
 
     return (
@@ -235,7 +236,7 @@ const DoctorSection = () => {
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                             Department Id
                                         </Form.Label>
-                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
+                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
                                             <option value="">Select Department Id</option>
                                             {departmentIds.map((depid) => (
                                                 <option key={depid} value={depid}>
@@ -268,14 +269,15 @@ const DoctorSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>
                                         <div className="image-box">
-                                            {doctorImg ? (
-                                                <img src={doctorImg} alt="Crop Image 1"/>
+                                            {previewImage ? (
+                                                <img src={previewImage} alt="Preview"/>
                                             ) : (
-                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}>No Image Selected</div>
+                                                <div className="text-center text-muted font-bold" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px"}}>No Image Selected</div>
                                             )}
                                         </div>
-                                        <Button className="choose-image-btn" as="label">Choose Image
-                                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, setDoctorImg)} hidden/>
+                                        <Button className="choose-image-btn" as="label">
+                                            Choose Image
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
 
@@ -349,8 +351,13 @@ const DoctorSection = () => {
                                                 <td className="px-4 py-2 border">{doctor.doctorName}</td>
                                                 <td className="px-4 py-2 border">{doctor.specialty}</td>
                                                 <td className="px-4 py-2 border">
-                                                    <img src={doctor.doctorImg || ''} alt="Doctor Image"
-                                                         className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                    {doctor.doctorImg ? (
+                                                        <img src={`data:image/jpeg;base64,${doctor.doctorImg}`}
+                                                             alt="Patient Image"
+                                                             className="w-[60px] h-[60px] object-cover rounded-full"/>
+                                                    ) : (
+                                                        <span>No Image</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-2 border">{doctor.gender}</td>
                                                 <td className="px-4 py-2 border">{doctor.contactNumber}</td>
@@ -358,7 +365,7 @@ const DoctorSection = () => {
                                                 <td className="px-4 py-2 border flex justify-center gap-2 h-[80px]">
                                                     <button
                                                         className="bg-red-500 text-white px-3 h-[40px] py-1 rounded-md hover:bg-red-700"
-                                                        onClick={handleDeleteDoctor}>Delete
+                                                        onClick={(event) => handleDeleteDoctor(event, doctor.doctorId)}>Delete
                                                     </button>
                                                 </td>
                                             </tr>
