@@ -9,14 +9,8 @@ import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {MedicalReport} from "../models/ MedicalReport.ts";
-import {
-    addMedicalReport,
-    deleteMedicalReport,
-    getMedicalReports,
-    updateMedicalReport
-} from "../reducers/MedicalReportSlice.ts";
-import {Department} from "../models/Department.ts";
-import {getDepartments} from "../reducers/DepartmentSlice.ts";
+import {deleteMedicalReport, getMedicalReports, saveMedicalReport, updateMedicalReport} from "../reducers/MedicalReportSlice.ts";
+
 
 const MedicalReportSection = () => {
     const [show, setShow] = useState(false);
@@ -26,7 +20,11 @@ const MedicalReportSection = () => {
     const [medicalReportId, setMedicalReportId] = useState("");
     const [patientId, setPatientId] = useState("");
     const [patientIds, setPatientIds] = useState<string[]>([]);
+    const [doctorId, setDoctorId] = useState("");
+    const [doctorIds, setDoctorIds] = useState<string[]>([]);
     const [patientName, setPatientName] = useState("");
+    const [gender, setGender] = useState("");
+    const [age, setAge] = useState("");
     const [testResults, setTestResults] = useState("");
     const [reportDate, setReportDate] = useState("");
     const [notes, setNotes] = useState("");
@@ -61,6 +59,18 @@ const MedicalReportSection = () => {
     }, [patients]);
 
     useEffect(() => {
+        const selectedPatient = patients.find(p => p.patientId === patientId);
+        setPatientName(selectedPatient ? selectedPatient.patientName  : '');
+        setGender(selectedPatient ? selectedPatient.gender  : '');
+        setAge(selectedPatient ? selectedPatient.age  : '');
+    }, [patientId, patients]);
+
+    useEffect(() => {
+        const doctorIdArray = doctors.map((doc) => doc.doctorId);
+        setDoctorIds(doctorIdArray);
+    }, [doctors]);
+
+    useEffect(() => {
         dispatch(getMedicalReports()).then((response) => {
             const nextMedicalReportId = generateNextMedicalReportId(response.payload);
             setMedicalReportId(nextMedicalReportId); //automatically set the generated ID
@@ -89,18 +99,33 @@ const MedicalReportSection = () => {
 
 
     const handleAddMedicalReport = () => {
-        dispatch(
-            addMedicalReport({medicalReportId,patientId,patientName,testResults,reportDate,notes})
-        );
+        if (!medicalReportId || !reportDate || !testResults || !notes || !patientId || !doctorId) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const newMedicalReport = {medicalReportId,reportDate,testResults,notes,patientId,patientName,doctorId};
+        dispatch(saveMedicalReport(newMedicalReport)).then(() => {
+            dispatch(getMedicalReports());
+        });
         resetForm();
+        setMedicalReportId(generateNextMedicalReportId(medicalReports))
         handleClose();
     }
 
 
     const handleUpdateMedicalReport = () => {
-        dispatch(updateMedicalReport({medicalReportId,patientId,patientName,testResults,reportDate,notes})
-        );
+        if (!medicalReportId || !reportDate || !testResults || !notes || !patientId || !doctorId) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const updatedMedicalReport = {medicalReportId,reportDate,testResults,notes,patientId,patientName,doctorId};
+        dispatch(updateMedicalReport(updatedMedicalReport)).then(() => {
+            dispatch(getMedicalReports());
+        });
         resetForm();
+        setMedicalReportId(generateNextMedicalReportId(medicalReports))
         handleClose();
     }
 
@@ -185,6 +210,15 @@ const MedicalReportSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Report Date</Form.Label>
+                                        <Form.Control className="border-2 border-black font-normal" style={{
+                                            fontFamily: "'Montserrat', serif",
+                                            fontSize: "15px"
+                                        }} type="date" value={reportDate}
+                                                      onChange={e => setReportDate(e.target.value)}/>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                             Patient Id
                                         </Form.Label>
@@ -202,34 +236,26 @@ const MedicalReportSection = () => {
                                         <Col md={6}>
                                             <Form.Group controlId="staff-id">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>patient Full Name</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={patientName}/>
                                             </Form.Group>
                                         </Col>
 
                                         <Col md={6}>
                                             <Form.Group controlId="firstName">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Gender</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                    <Row className="mb-3">
-                                        <Col md={6}>
-                                            <Form.Group controlId="staff-id">
-                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Age</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={gender} readOnly/>
                                             </Form.Group>
                                         </Col>
                                     </Row>
 
-                                    <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Report Date</Form.Label>
-                                        <Form.Control className="border-2 border-black font-normal" style={{
-                                            fontFamily: "'Montserrat', serif",
-                                            fontSize: "15px"
-                                        }} type="date" value={reportDate}
-                                                      onChange={e => setReportDate(e.target.value)}/>
-                                    </Form.Group>
+                                    <Row className="mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="staff-id">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Age</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={age} readOnly/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
 
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>Test Results</Form.Label>
@@ -240,14 +266,41 @@ const MedicalReportSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>
-                                            Test Results
-                                        </Form.Label>
+                                        <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>Notes</Form.Label>
                                         <Form.Control as="textarea" rows={3} className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
                                             placeholder="Enter notes" value={notes}
-                                            onChange={e => setNotes(e.target.value)}
-                                        />
+                                            onChange={e => setNotes(e.target.value)}/>
                                     </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            Doctor ID
+                                        </Form.Label>
+                                        <Form.Select style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border-2 border-black" aria-label="Default select example" value={doctorId} onChange={(e) => setDoctorId(e.target.value)}>
+                                            <option value="">Select Doctor ID</option>
+                                            {doctorIds.map((docId) => (
+                                                <option key={docId} value={docId}>
+                                                    {docId}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    <Row className="mb-3">
+                                        <Col md={6}>
+                                            <Form.Group controlId="staff-id">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Doctor Full Name</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                            </Form.Group>
+                                        </Col>
+
+                                        <Col md={6}>
+                                            <Form.Group controlId="firstName">
+                                                <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Specialty</Form.Label>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
                                     <br/>
                                 </Form>
                             </Modal.Body>
