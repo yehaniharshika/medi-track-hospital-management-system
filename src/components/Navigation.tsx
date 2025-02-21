@@ -25,7 +25,7 @@ export const Navigation = () => {
         <section className="flex gap-3">
             {/* Sidebar container */}
             <div
-                className={`bg-purple-500  shadow-xl z-[999] h-screen ${open ? 'w-60' : 'w-28'} duration-500 text-gray-100 px-4 md:relative fixed top-0`}>
+                className={`bg-purple-500  shadow-xl z-[999] h-screen ${open ? 'w-64' : 'w-28'} duration-500 text-gray-100 px-4 md:relative fixed top-0`}>
                 {/* Logo Section */}
 
                 <div className="py-3 flex justify-end">

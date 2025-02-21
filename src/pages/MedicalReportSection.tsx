@@ -23,6 +23,8 @@ const MedicalReportSection = () => {
     const [doctorId, setDoctorId] = useState("");
     const [doctorIds, setDoctorIds] = useState<string[]>([]);
     const [patientName, setPatientName] = useState("");
+    const [doctorName, setDoctorName] = useState("");
+    const [specialty, setSpecialty] = useState("");
     const [gender, setGender] = useState("");
     const [age, setAge] = useState("");
     const [testResults, setTestResults] = useState("");
@@ -54,28 +56,37 @@ const MedicalReportSection = () => {
     };
 
     useEffect(() => {
+        // Set formatted date
+        const today = new Date();
+        const formattedDate = today.toISOString().split("T")[0]; // format as YYYY-MM-DD
+        setReportDate(formattedDate);
+
+        // Load Patient IDs
         const patientIdArray = patients.map((p) => p.patientId);
         setPatientIds(patientIdArray);
-    }, [patients]);
 
-    useEffect(() => {
+        // Update Selected Patient Details
         const selectedPatient = patients.find(p => p.patientId === patientId);
-        setPatientName(selectedPatient ? selectedPatient.patientName  : '');
-        setGender(selectedPatient ? selectedPatient.gender  : '');
-        setAge(selectedPatient ? selectedPatient.age  : '');
-    }, [patientId, patients]);
+        setPatientName(selectedPatient ? selectedPatient.patientName : '');
+        setGender(selectedPatient ? selectedPatient.gender : '');
+        setAge(selectedPatient ? selectedPatient.age : '');
 
-    useEffect(() => {
+        // Load Doctor IDs
         const doctorIdArray = doctors.map((doc) => doc.doctorId);
         setDoctorIds(doctorIdArray);
-    }, [doctors]);
 
-    useEffect(() => {
+        // Update Selected Doctor Details
+        const selectedDoctor = doctors.find(doc => doc.doctorId === doctorId);
+        setDoctorName(selectedDoctor ? selectedDoctor.doctorName : '');
+        setSpecialty(selectedDoctor ? selectedDoctor.specialty : '');
+
+        // Fetch Medical Reports and Generate ID
         dispatch(getMedicalReports()).then((response) => {
             const nextMedicalReportId = generateNextMedicalReportId(response.payload);
-            setMedicalReportId(nextMedicalReportId); //automatically set the generated ID
+            setMedicalReportId(nextMedicalReportId); // Automatically set the generated ID
         });
-    }, [dispatch]);
+    }, [patients, patientId, doctors, doctorId, dispatch]);
+
 
 
     const handleEditMedicalReport = (medicalReport: MedicalReport) => {
@@ -204,7 +215,7 @@ const MedicalReportSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Report ID</Form.Label>
                                         <Form.Control className="border-2 border-black"
-                                                      style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                                      style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "550" , color: "darkblue"}} type="text"
                                                       value={medicalReportId}
                                                       onChange={e => setMedicalReportId(e.target.value)}/>
                                     </Form.Group>
@@ -290,14 +301,14 @@ const MedicalReportSection = () => {
                                         <Col md={6}>
                                             <Form.Group controlId="staff-id">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Doctor Full Name</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={doctorName}/>
                                             </Form.Group>
                                         </Col>
 
                                         <Col md={6}>
                                             <Form.Group controlId="firstName">
                                                 <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Specialty</Form.Label>
-                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"/>
+                                                <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text" value={specialty}/>
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -321,8 +332,8 @@ const MedicalReportSection = () => {
                                     <thead className="bg-red-500 text-white">
                                     <tr className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                         <th className="px-4 py-2 border">Report ID</th>
-                                        <th className="px-4 py-2 border">Patient ID</th>
                                         <th className="px-4 py-2 border">Report Date</th>
+                                        <th className="px-4 py-2 border">Patient ID</th>
                                         <th className="px-4 py-2 border">Test Results</th>
                                         <th className="px-4 py-2 border">notes</th>
                                         <th className="px-4 py-2 border">Action</th>
@@ -334,8 +345,8 @@ const MedicalReportSection = () => {
                                             onClick={() => handleEditMedicalReport(medicalReport)}
                                             className="hover:bg-blue-100 transition-all">
                                             <td className="px-4 py-2 border">{medicalReport.medicalReportId}</td>
-                                            <td className="px-4 py-2 border">{medicalReport.patientId}</td>
                                             <td className="px-4 py-2 border">{medicalReport.reportDate}</td>
+                                            <td className="px-4 py-2 border">{medicalReport.patientId}</td>
                                             <td className="px-4 py-2 border">{medicalReport.testResults}</td>
                                             <td className="px-4 py-2 border">{medicalReport.notes}</td>
                                             <td className="px-4 py-2 border flex justify-center gap-2 h-[80px]">
