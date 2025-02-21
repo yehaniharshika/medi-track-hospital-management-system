@@ -1,17 +1,19 @@
 export class MedicalReport {
     medicalReportId: string;
+    reportDate: string;
+    testResults: string;
+    notes: string;
     patientId: string;
     patientName: string;
-    testResults: string;
-    reportDate: string;
-    notes: string;
+    doctorId: string;
 
-    constructor(medicalReportId: string, patientId: string, patientName: string, testResults: string, reportDate: string, notes: string) {
+    constructor(medicalReportId: string, reportDate: string, testResults: string, notes: string,patientId: string, patientName: string, doctorId: string) {
         this.medicalReportId = medicalReportId;
+        this.reportDate = reportDate;
+        this.testResults = testResults;
+        this.notes = notes;
         this.patientId = patientId;
         this.patientName = patientName;
-        this.testResults = testResults;
-        this.reportDate = reportDate;
-        this.notes = notes;
+        this.doctorId = doctorId;
     }
 }

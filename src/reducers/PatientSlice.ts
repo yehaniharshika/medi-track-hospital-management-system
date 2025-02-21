@@ -48,8 +48,6 @@ export const deletePatient = createAsyncThunk(
     }
 );
 
-
-
 export const getPatients = createAsyncThunk(
     'patient/getPatients',
     async () =>{
