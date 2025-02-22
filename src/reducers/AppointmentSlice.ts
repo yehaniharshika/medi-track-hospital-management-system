@@ -2,6 +2,7 @@ import {Appointment} from "../models/Appointment.ts";
 import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import axios from "axios";
 
+
 const initialState: Appointment[] = [];
 
 const api = axios.create({

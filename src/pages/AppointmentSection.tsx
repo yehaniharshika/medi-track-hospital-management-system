@@ -9,7 +9,12 @@ import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Appointment} from "../models/Appointment.ts";
-import {addAppointment, deleteAppointment, getAppointments, updateAppointment} from "../reducers/AppointmentSlice.ts";
+import {
+    deleteAppointment,
+    getAppointments,
+    saveAppointment,
+    updateAppointment
+} from "../reducers/AppointmentSlice.ts";
 import {PiMicrosoftExcelLogoFill} from "react-icons/pi";
 import {SlCalender} from "react-icons/sl";
 
@@ -108,18 +113,33 @@ const AppointmentSection = () => {
 
 
     const handleAddAppointment = () => {
-        dispatch(
-            addAppointment({appointmentCode,appointmentDate,appointmentTime,patientId,doctorId,appointmentType,appointmentStatus})
-        );
+        if (!appointmentCode || !appointmentDate || !appointmentTime || !patientId || !doctorId || !appointmentType ||!appointmentStatus) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const newAppointment = {appointmentCode,appointmentDate,appointmentTime,patientId,doctorId,appointmentType,appointmentStatus};
+        dispatch(saveAppointment(newAppointment)).then(() => {
+            dispatch(getAppointments());
+        });
         resetForm();
+        setAppointmentCode(generateNextAppointmentCode(appointments))
         handleClose();
     }
 
 
     const handleUpdateAppointment = () => {
-        dispatch(updateAppointment({appointmentCode,appointmentDate,appointmentTime,patientId,doctorId,appointmentType,appointmentStatus})
-        );
+        if (!appointmentCode || !appointmentDate || !appointmentTime || !patientId || !doctorId || !appointmentType ||!appointmentStatus) {
+            alert("All fields are required!");
+            return;
+        }
+
+        const updatedAppointment = {appointmentCode,appointmentDate,appointmentTime,patientId,doctorId,appointmentType,appointmentStatus};
+        dispatch(updateAppointment(updatedAppointment)).then(() => {
+            dispatch(getAppointments());
+        });
         resetForm();
+        setAppointmentCode(generateNextAppointmentCode(appointments))
         handleClose();
     }
 
