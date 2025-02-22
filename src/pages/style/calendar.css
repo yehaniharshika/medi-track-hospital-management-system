@@ -1,0 +1,36 @@
+/*!* Custom styles for the calendar modal *!*/
+/*.modal-content {*/
+/*    background-color: #e8e0f5; !* Light purple background *!*/
+/*}*/
+
+/*.fc-toolbar {*/
+/*    background-color: #bfa0d0; !* Light purple for toolbar *!*/
+/*}*/
+
+/*.fc-daygrid-day {*/
+/*    background-color: #f2ebff; !* Light purple background for each day *!*/
+/*}*/
+
+/*.fc-daygrid-day-top {*/
+/*    background-color: #bfa0d0; !* Darker purple for day header *!*/
+/*}*/
+
+/*.fc-button-primary {*/
+/*    background-color: #a685d0; !* Purple buttons *!*/
+/*    border-color: #9e5fc6;*/
+/*}*/
+
+/*.fc-button-primary:hover {*/
+/*    background-color: #9e5fc6; !* Hover effect *!*/
+/*}*/
+
+.custom-modal-size .modal-dialog {
+    max-width: 82%; /* or any desired width */
+    width: 82%; /* Adjust the width of the modal */
+}
+
+
+
+
+
+

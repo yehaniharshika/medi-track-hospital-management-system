@@ -9,15 +9,16 @@ import {MdSearch} from "react-icons/md";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Appointment} from "../models/Appointment.ts";
-import {
-    deleteAppointment,
-    getAppointments,
-    saveAppointment,
-    updateAppointment
-} from "../reducers/AppointmentSlice.ts";
+import {deleteAppointment, getAppointments, saveAppointment, updateAppointment} from "../reducers/AppointmentSlice.ts";
 import {PiMicrosoftExcelLogoFill} from "react-icons/pi";
 import {SlCalender} from "react-icons/sl";
-
+// npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { EventInput } from '@fullcalendar/core';
+import "../pages/style/calendar.css";
 
 const AppointmentSection = () => {
     const [show, setShow] = useState(false);
@@ -43,6 +44,12 @@ const AppointmentSection = () => {
     const appointments = useSelector((state: RootState) => state.appointments);
     const patients = useSelector((state: RootState) => state.patients);
     const doctors = useSelector((state: RootState) => state.doctors);
+
+    const [calendarShow, setCalendarShow] = useState<boolean>(false);
+    const handleCalendarShow = () => setCalendarShow(true);
+    const handleCalendarClose = () => setCalendarShow(false);
+
+
 
     const generateNextAppointmentCode = (existingAppointments : Appointment[]) => {
         if (!existingAppointments || existingAppointments.length === 0) {
@@ -88,6 +95,10 @@ const AppointmentSection = () => {
         });
 
     }, [patients, patientId, doctors, doctorId, dispatch]);
+
+    useEffect(() => {
+        dispatch(getAppointments());
+    }, [dispatch]);
 
 
     const handleEditAppointment = (appointment: Appointment) => {
@@ -154,6 +165,13 @@ const AppointmentSection = () => {
     const handleLoadAppointmentsToExcelSheet = () => {
 
     }
+    const events: EventInput[] = appointments.map((appointment: Appointment) => ({
+        title: `Patient: ${appointment.patientId} | Time: ${appointment.appointmentTime}`,
+        start: `${appointment.appointmentDate}T${appointment.appointmentTime}`,
+        end: `${appointment.appointmentDate}T${appointment.appointmentTime}`,
+    }));
+
+
 
 
     return (
@@ -199,7 +217,7 @@ const AppointmentSection = () => {
                         <br/>
                         <div className="flex justify-between items-center mb-4">
 
-                            <Button variant="primary" onClick={handleShow} className="h-10 max-w-40 font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                            <Button variant="primary" onClick={handleShow} className="h-10 max-w-40 font-bold" style={{ fontFamily: "'Montserrat', serif" ,fontSize: "15px",fontWeight: "bold"}}>
                                 + Appointment
                             </Button>
 
@@ -212,10 +230,38 @@ const AppointmentSection = () => {
                                 </InputGroup>
                                 <div>
                                     <Button onClick={handleLoadAppointmentsToExcelSheet}><PiMicrosoftExcelLogoFill size={24}/></Button>
-                                    <Button><SlCalender size={24}/></Button>
+                                    <Button onClick={handleCalendarShow}>
+                                        <SlCalender size={24} />
+                                    </Button>
                                 </div>
                             </div>
                         </div>
+                        <Modal show={calendarShow} onHide={handleCalendarClose} className="custom-modal-size">
+                            <Modal.Header closeButton>
+                                <Modal.Title>Appointments Calendar</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body style={{ fontFamily: "'Montserrat', serif", fontWeight: "bold" ,fontSize: "14px"}}>
+                                <FullCalendar
+                                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                    initialView="dayGridMonth"
+                                    headerToolbar={{
+                                        left: "prev,next today",
+                                        center: "title",
+                                        right: "dayGridMonth,timeGridWeek,timeGridDay",
+                                    }}
+                                    events={events}
+                                    selectable={true}
+                                    editable={false}
+                                />
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCalendarClose} style={{ fontFamily: "'Montserrat', serif" ,fontSize: "14px"}}>
+                                    Close
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
+
                         <Modal show={show} onHide={handleClose}>
                             <Modal.Header closeButton>
                                 <Modal.Title className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Appointment Details Form</Modal.Title>
