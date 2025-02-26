@@ -135,7 +135,7 @@ const DepartmentSection = () => {
                                             <motion.h4
                                                 className="font-bold text-2xl text-neutral-100"
                                                 style={{fontFamily: "'Ubuntu', sans-serif",
-                                                    fontWeight: "bold"}}
+                                                    fontWeight: "bold" ,color: "white"}}
                                                 initial={{scale: 0.8, opacity: 0}}
                                                 animate={{scale: 1, opacity: 1}}
                                                 transition={{
@@ -154,7 +154,7 @@ const DepartmentSection = () => {
                         <br/>
                         <div className="flex justify-between items-center mb-4">
 
-                            <Button variant="primary" onClick={handleShow} className="h-10 max-w-40 font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                            <Button variant="primary" onClick={handleShow} className="h-10 max-w-40 font-bold" style={{ fontFamily: "'Montserrat', serif" ,fontSize: "15px",fontWeight: "bold"}}>
                                 + Department
                             </Button>
 

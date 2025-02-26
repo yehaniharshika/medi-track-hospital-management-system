@@ -56,8 +56,8 @@ export const Navigation = () => {
                         </li>
 
                         <li>
-                            <NavLink to="/department" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                            <NavLink to="/department" className={({isActive}) =>`flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaHouseMedicalCircleCheck  size={24} className="min-w-max"/>Department
@@ -65,7 +65,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/doctor" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaUserDoctor size={24} className="min-w-max"/>Doctor
@@ -73,7 +73,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/nurse" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaUserNurse size={24} className="min-w-max"/>Nurse
@@ -82,7 +82,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/patient" className={({isActive}) =>`flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaPersonCirclePlus  size={24} className="min-w-max"/>Patient
@@ -90,7 +90,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/appointment" className={({isActive}) =>`flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <LuCalendarPlus2 size={24} className="min-w-max"/>appointment
@@ -98,7 +98,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/medicine" className={({isActive}) =>`flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <GiMedicines  size={24} className="min-w-max"/>Medicine
@@ -106,7 +106,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/report" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaFileMedical  size={24} className="min-w-max"/>Medical Report
@@ -114,7 +114,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/payment" className={({isActive}) =>`flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaMoneyCheckAlt  size={24} className="min-w-max"/>Payment
@@ -124,7 +124,7 @@ export const Navigation = () => {
                         <br/>
                         <li>
                             <NavLink to="/setting" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaGear  size={24} className="min-w-max"/>
@@ -133,7 +133,7 @@ export const Navigation = () => {
                         </li>
                         <li>
                             <NavLink to="/login" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
-                                ${isActive ? "bg-teal-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
+                                ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaSignOutAlt size={24} className="min-w-max"/>

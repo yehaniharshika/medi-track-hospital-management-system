@@ -52,14 +52,14 @@ export default function Dashboard() {
                 <Container fluid>
                     <Row className="align-items-center mb-3">
                         <Col md={12}>
-                            <div className=" p-3 rounded top-50">
+                            <div className="p-3 rounded top-50" style={{backgroundColor: "#8854d0"}}>
                                 <Container fluid>
                                     <Row className="align-items-center">
                                         {/* Search Field */}
                                         <Col md={6}>
                                             <InputGroup>
                                                 <FormControl className="font-bold"
-                                                             style={{fontFamily: "'Ubuntu', sans-serif"}}
+                                                             style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}
                                                              placeholder="Search..."/>
                                                 <InputGroup.Text>
                                                     <MdSearch/>

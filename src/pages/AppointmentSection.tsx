@@ -10,7 +10,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Appointment} from "../models/Appointment.ts";
 import {deleteAppointment, getAppointments, saveAppointment, updateAppointment} from "../reducers/AppointmentSlice.ts";
-import {PiMicrosoftExcelLogoFill} from "react-icons/pi";
 import {SlCalender} from "react-icons/sl";
 // npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
 import FullCalendar from "@fullcalendar/react";
@@ -162,9 +161,7 @@ const AppointmentSection = () => {
         }
     };
 
-    const handleLoadAppointmentsToExcelSheet = () => {
 
-    }
     const events: EventInput[] = appointments.map((appointment: Appointment) => ({
         title: `Patient: ${appointment.patientId} | Time: ${appointment.appointmentTime}`,
         start: `${appointment.appointmentDate}T${appointment.appointmentTime}`,
@@ -198,7 +195,7 @@ const AppointmentSection = () => {
                                             <motion.h4
                                                 className="font-bold text-2xl text-neutral-100"
                                                 style={{fontFamily: "'Ubuntu', sans-serif",
-                                                    fontWeight: "bold"}}
+                                                    fontWeight: "bold",color: "white"}}
                                                 initial={{scale: 0.8, opacity: 0}}
                                                 animate={{scale: 1, opacity: 1}}
                                                 transition={{
@@ -223,21 +220,29 @@ const AppointmentSection = () => {
 
                             <div className="w-1/3">
                                 <InputGroup>
-                                    <FormControl className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}} placeholder="Search Nurse..."/>
+                                    <FormControl
+                                        className="border-2 border-black"
+                                        style={{ fontFamily: "'Montserrat', serif", fontSize: "15px" }}
+                                        placeholder="Search Appointment..."
+                                    />
                                     <InputGroup.Text className="cursor-pointer border-2 border-black">
                                         <MdSearch/>
                                     </InputGroup.Text>
+
+                                    {/* Adding padding between the search input and the calendar button */}
+                                    <div
+                                        className="ms-2"> {/* 'ms-2' adds margin to the left (padding between the input and calendar button) */}
+                                        <Button onClick={handleCalendarShow}
+                                                className="p-2"> {/* Add padding inside the button if needed */}
+                                            <SlCalender size={24}/>
+                                        </Button>
+                                    </div>
                                 </InputGroup>
-                                <div>
-                                    <Button onClick={handleLoadAppointmentsToExcelSheet}><PiMicrosoftExcelLogoFill size={24}/></Button>
-                                    <Button onClick={handleCalendarShow}>
-                                        <SlCalender size={24} />
-                                    </Button>
-                                </div>
                             </div>
+
                         </div>
                         <Modal show={calendarShow} onHide={handleCalendarClose} className="custom-modal-size">
-                            <Modal.Header closeButton>
+                        <Modal.Header closeButton>
                                 <Modal.Title>Appointments Calendar</Modal.Title>
                             </Modal.Header>
                             <Modal.Body style={{ fontFamily: "'Montserrat', serif", fontWeight: "bold" ,fontSize: "14px"}}>
