@@ -46,25 +46,31 @@ const paymentSlice = createSlice({
             .addCase(createPayment.fulfilled, (state, action) => {
                 state.push(action.payload);
             })
-            .addCase(createPayment.rejected, (_, action) => {
-                console.error("Failed to create payment:", action.error);
-            })
-            .addCase(createPayment.pending, () => {
+            .addCase(createPayment.pending, (state) => {
                 console.log("Pending create payment");
-            });
-
-        builder
-            .addCase(getPayments.fulfilled, (_, action) => {
-                return action.payload;
+                // Always return the current state
+                return state;
             })
-            .addCase(getPayments.pending, (_, action) => {
-                console.log("Pending get Payments: ", action.payload);
+            .addCase(createPayment.rejected, (state, action) => {
+                console.error("Failed to create payment:", action.error);
+                // Always return the current state
+                return state;
             })
-            .addCase(getPayments.rejected, (_, action) => {
-                console.error("Failed to get Payments: ", action.payload);
+            .addCase(getPayments.fulfilled, (state, action) => {
+                // Ensure action.payload is an array, else return current state
+                return Array.isArray(action.payload) ? action.payload : state;
+            })
+            .addCase(getPayments.pending, (state) => {
+                console.log("Pending get Payments");
+                return state;
+            })
+            .addCase(getPayments.rejected, (state, action) => {
+                console.error("Failed to get Payments: ", action.error);
+                return state;
             });
     }
 });
+
 
 export const {createdPayment} = paymentSlice.actions;
 export default paymentSlice.reducer;

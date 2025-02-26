@@ -1,10 +1,15 @@
 import { Navigation } from "../components/Navigation.tsx";
 import {Container, Col, Form, Row, Button, Table} from "react-bootstrap";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/Store.ts";
 import "../pages/style/doctor.css";
+import {createPayment, getPayments} from "../reducers/PaymentSlice.ts";
+import {getPatients} from "../reducers/PatientSlice.ts";
+import {getMedicines} from "../reducers/MedicineSlice.ts";
+import {Payment} from "../models/Payment.ts";
+
 
 const PaymentSection = () => {
     const [paymentId, setPaymentId] = useState("");
@@ -17,20 +22,155 @@ const PaymentSection = () => {
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const patients = useSelector((state: RootState) => state.patients.patients);
-    const medicines = useSelector((state: RootState) => state.medicines.medicines);
+    const patients = useSelector((state: RootState) => state.patients);
+    const medicines = useSelector((state: RootState) => state.medicines);
+    const payments = useSelector((state: RootState) => state.payments);
 
-    function handleQuantityChange() {
 
-    }
+    const generateNextPaymentId = (existingPayments : Payment[]) => {
+        if (!existingPayments || existingPayments.length === 0) {
+            return 'PI001';
+        }
 
-    function handleRemoveItem(medicineId) {
+        const paymentIds = existingPayments
+            .map(pay => pay.paymentId ? Number(pay.paymentId.replace('PI', '')) : 0)
+            .filter(num => !isNaN(num));
 
-    }
+        if (paymentIds.length === 0) {
+            return 'PI001';
+        }
 
-    function calculateTotalBalance() {
+        const maxId = Math.max(...paymentIds);
+        const nextPaymentId = `PI${String(maxId + 1).padStart(3, '0')}`; // Increment and format
+        return nextPaymentId ? nextPaymentId : nextPaymentId;
+    };
 
-    }
+
+    useEffect(() => {
+        const today = new Date();
+        const formattedDate = today.toISOString().split("T")[0]; // format as YYYY-MM-DD
+        setPaymentDate(formattedDate);
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(getPatients());
+        dispatch(getMedicines());
+        dispatch(getPayments());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (payments.length > 0) {
+            const initialPaymentId = generateNextPaymentId(payments);
+            setPaymentId(initialPaymentId);
+        }
+    }, [payments]);
+
+    const handleMedicineSelect = (medicineId: string) => {
+        if (!medicines || medicines.length === 0) {
+            console.error("Medicine array is empty or not loaded yet.");
+            return;
+        }
+
+        const medicine = medicines.find((medicine) => String(medicine.medicineId) === String(medicineId));
+
+        if (!medicine) {
+            console.error("Medicine not found for medicine Id:", medicineId);
+            return;
+        }
+
+        setSelectedMedicine(medicine);
+        setGetQty(0);
+        setTotalPrice(getQty * selectedMedicine.unit_price); // Calculate total price here using medicine.unit_price
+    };
+
+
+    const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const qty = Number(e.target.value);
+
+        if (selectedMedicine) {
+            if (qty < 1 || qty > selectedMedicine.quantity_in_stock) {
+                alert("Invalid quantity!");
+                return;
+            }
+            setGetQty(qty);
+            setTotalPrice(qty * selectedMedicine.unit_price);
+        }
+    };
+
+
+    const handleAddToCart = () => {
+        if (!selectedMedicine) return;
+
+        if (getQty < 1 || getQty > selectedMedicine.quantity_in_stock) {
+            alert("Invalid quantity!");
+            return;
+        }
+
+        const existingMedicine = paymentMedicines.find(
+            (medicine) => medicine.medicineId === selectedMedicine.medicineId
+        );
+
+        if (existingMedicine) {
+            const updatedPaymentMedicines = paymentMedicines.map((medicine) =>
+                medicine.medicineId === selectedMedicine.medicineId
+                    ? {
+                        ...medicine,
+                        quantity_in_stock: medicine.quantity_in_stock + getQty,
+                        totalPrice:
+                            (medicine.quantity_in_stock + getQty) * medicine.unit_price,
+                    }
+                    : medicine
+            );
+            setPaymentMedicines(updatedPaymentMedicines);
+        } else {
+            const newMedicine = {
+                ...selectedMedicine,
+                quantity_in_stock: getQty,
+                totalPrice: getQty * selectedMedicine.unit_price,
+            };
+
+            setPaymentMedicines([...paymentMedicines, newMedicine]);
+        }
+        setGetQty(0);
+        setTotalPrice(0);
+        setSelectedMedicine(null);
+    };
+
+    const handleRemoveItem = (medicineId: string) => {
+        setPaymentMedicines(paymentMedicines.filter((medicine) => medicine.medicineId !== medicineId));
+    };
+
+    const calculateTotalBalance = () => {
+        return paymentMedicines.reduce((sum, medicine) => sum + medicine.totalPrice, 0);
+    };
+
+    const resetForm = () => {
+        setSelectedPatient("");
+        setPaymentMedicines([]);
+        setTotalPrice(0);
+        setPaymentId("");
+        setPaymentDate("");
+        setSelectedMedicine(null);
+    };
+
+    const handlePlacePayment = () => {
+        const paymentData = {
+            paymentId: paymentId,
+            paymentDate,
+            patientId : selectedPatient,
+            medicineItems: paymentMedicines.map((medicine, index) => ({
+                paymentDetailsId: `PD-${paymentId}-${index + 1}`, // Generate a unique ID for each order item
+                medicineId: medicine.medicineId,
+                getQty: medicine.quantity_in_stock,
+                price: medicine.unit_price,
+                totalPrice: medicine.totalPrice,
+            })),
+        };
+        dispatch(createPayment(paymentData));
+        console.log("Payment placed: ",paymentData);
+        alert("Payment placed successfully");
+        resetForm();
+    };
 
     return (
         <>
@@ -87,7 +227,7 @@ const PaymentSection = () => {
                                             </Form.Label>
                                             <Form.Control
                                                 className="border-2 border-black"
-                                                style={{fontFamily: "'Ubuntu', sans-serif"}}
+                                                style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
                                                 type="text"
                                                 value={paymentId}
                                                 onChange={(e) => setPaymentId(e.target.value)}
@@ -121,9 +261,9 @@ const PaymentSection = () => {
                                                 onChange={(e) => setSelectedPatient(e.target.value)}
                                             >
                                                 <option value="">Select Patient Id</option>
-                                                {patients.map((patient: any) => (
-                                                    <option key={patient.id} value={patient.id}>
-                                                        {patient.id}
+                                                {patients.map((patient) => (
+                                                    <option key={patient.patientId} value={patient.patientId}>
+                                                        {patient.patientId}
                                                     </option>
                                                 ))}
                                             </Form.Select>
@@ -134,13 +274,15 @@ const PaymentSection = () => {
                                                         style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                                 Patient Full Name
                                             </Form.Label>
-                                            <Form.Control
-                                                className="border-2 border-black"
-                                                style={{fontFamily: "'Ubuntu', sans-serif"}}
-                                                type="text"
-                                                value={selectedPatient?.name || ""}
-                                                readOnly
-                                            />
+                                            <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text" value={selectedPatient?.name || ""} readOnly/>
+                                        </Form.Group>
+
+                                        <Form.Group className="mb-3">
+                                            <Form.Label className="font-bold"
+                                                        style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                                Age
+                                            </Form.Label>
+                                            <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text" value={selectedPatient?.name || ""} readOnly/>
                                         </Form.Group>
 
                                         <Form.Group className="mb-3">
@@ -152,11 +294,11 @@ const PaymentSection = () => {
                                                 style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
                                                 className="border-2 border-black"
                                                 aria-label="Default select example"
-                                                value={selectedPatient}
-                                                onChange={(e) => selectedMedicine(e.target.value)}
+                                                value={selectedMedicine?.medicineId || ""}
+                                                onChange={(e) => handleMedicineSelect(e.target.value)}
                                             >
                                                 <option value="">Select Medicine ID</option>
-                                                {medicines.map((medicine: any) => (
+                                                {medicines.map((medicine) => (
                                                     <option key={medicine.medicineId} value={medicine.medicineId}>
                                                         {medicine.medicineId}
                                                     </option>
@@ -168,27 +310,30 @@ const PaymentSection = () => {
                                 <Col md={6}>
                                     <Form className="p-4 border rounded bg-white shadow">
                                         {selectedMedicine && (
-                                            <div className="mt-4 p-4 border rounded bg-gray-100">
-                                                <label className="block text-sm font-bold">Item Name</label>
-                                                <input
+                                            <div className="p-4 border rounded shadow bg-gray-100">
+
+                                                <Form.Label style={{fontFamily: "'Ubuntu', sans-serif" ,fontSize:"15px"}} className="block text-sm font-bold">Item Name</Form.Label>
+                                                <Form.Control
                                                     type="text"
                                                     value={selectedMedicine.medicineName}
+                                                    style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
                                                     className="border p-2 rounded w-full"
                                                     disabled
                                                 />
 
-                                                <label className="block text-sm font-bold mt-2">Price</label>
-                                                <input type="text" value={selectedMedicine.unit_price}
+                                                <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Price</Form.Label>
+                                                <Form.Control type="text" value={selectedMedicine.unit_price}
+                                                       style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
                                                        className="border p-2 rounded w-full"
                                                        disabled
                                                 />
 
-                                                <label className="block text-sm font-bold mt-2">Stock</label>
-                                                <input type="text" value={selectedMedicine.quantity_in_stock}
+                                                <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Stock</Form.Label>
+                                                <Form.Control type="text" value={selectedMedicine.quantity_in_stock}
                                                        className="border p-2 rounded w-full" disabled/>
 
-                                                <label className="block text-sm font-bold mt-2">Get Quantity</label>
-                                                <input
+                                                <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Get Quantity</Form.Label>
+                                                <Form.Control
                                                     type="number"
                                                     value={getQty}
                                                     min="0"
@@ -197,16 +342,13 @@ const PaymentSection = () => {
                                                     className="border p-2 rounded w-full"
                                                 />
 
-                                                <label className="block text-sm font-bold mt-2">Total Price</label>
-                                                <input type="text" value={totalPrice}
+                                                <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Total Price</Form.Label>
+                                                <Form.Control type="text" value={totalPrice}
                                                        className="border p-2 rounded w-full" disabled/>
 
-                                                <Button
-                                                    style={{
-                                                        fontFamily: "'Montserrat', serif",
-                                                        fontSize: "15px",
-                                                        fontWeight: "600",
-                                                    }} className="font-bold" variant="success">
+                                                <br/>
+                                                <Button style={{fontFamily: "'Montserrat', serif", fontSize: "15px", fontWeight: "600"}} className="font-bold" variant="success"
+                                                        onClick={handleAddToCart}>
                                                     Add To Cart
                                                 </Button>
                                             </div>
@@ -215,45 +357,63 @@ const PaymentSection = () => {
                                 </Col>
                             </Row>
                         </Container>
-
-                        <div className="overflow-x-auto overflow-y-auto bg-gray-100 p-4 rounded-lg shadow-md">
-                            <div className="overflow-x-auto">
-                                <Table striped bordered hover responsive
-                                       className="w-full text-center border border-gray-300">
-                                    <thead className="bg-red-500 text-white">
-                                    <tr className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
-                                        <th className="px-4 py-2 border">Medicine Name</th>
-                                        <th className="px-4 py-2 border">Unit Price</th>
-                                        <th className="px-4 py-2 border">Quantity</th>
-                                        <th className="px-4 py-2 border">Total</th>
-                                        <th className="px-4 py-2 border">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody style={{
-                                        fontFamily: "'Montserrat', serif",
-                                        fontSize: "14px",
-                                        fontWeight: "400"
-                                    }}>
-                                    {paymentMedicines.map((paymentMedicine) => (
-                                        <tr key={paymentMedicine.medicineId}>
-                                            <td className="border px-4 py-2">{paymentMedicine.medicineName}</td>
-                                            <td className="border px-4 py-2">${Number(paymentMedicine.unit_price).toFixed(2)}</td>
-                                            <td className="border px-4 py-2">{paymentMedicine.quantity_in_stock}</td>
-                                            <td className="border px-4 py-2">${paymentMedicine.totalPrice ? paymentMedicine.totalPrice.toFixed(2) : "0.00"}</td>
-                                            <td className="border px-4 py-2 text-center">
-                                                <Button
-                                                    onClick={() => handleRemoveItem(paymentMedicine.medicineId)}
-                                                    className="bg-red-500 text-white p-2 rounded-lg"
-                                                >
-                                                    Remove
-                                                </Button>
-                                            </td>
+                        <br/>
+                        <div className="flex justify-center">
+                            <div className="overflow-x-auto overflow-y-auto bg-gray-100 p-4 rounded-lg shadow-md"
+                                 style={{width: "78%"}}>
+                                <div className="overflow-x-auto">
+                                    <Table
+                                        striped
+                                        bordered
+                                        hover
+                                        responsive
+                                        className="w-full text-center border border-gray-300 mx-auto"
+                                    >
+                                        <thead className="bg-red-500 text-white">
+                                        <tr className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            <th className="px-4 py-2 border">Medicine Name</th>
+                                            <th className="px-4 py-2 border">Unit Price</th>
+                                            <th className="px-4 py-2 border">Quantity</th>
+                                            <th className="px-4 py-2 border">Total</th>
+                                            <th className="px-4 py-2 border">Actions</th>
                                         </tr>
-                                    ))}
-                                    </tbody>
-                                </Table>
-                                <div className="mt-4 font-bold text-xl">
-                                    Total Balance:
+                                        </thead>
+                                        <tbody style={{
+                                            fontFamily: "'Montserrat', serif",
+                                            fontSize: "14px",
+                                            fontWeight: "400"
+                                        }}>
+                                        {paymentMedicines.map((paymentMedicine) => (
+                                            <tr key={paymentMedicine.medicineId}>
+                                                <td className="border px-4 py-2">{paymentMedicine.medicineName}</td>
+                                                <td className="border px-4 py-2">
+                                                    ${Number(paymentMedicine.unit_price).toFixed(2)}
+                                                </td>
+                                                <td className="border px-4 py-2">{paymentMedicine.quantity_in_stock}</td>
+                                                <td className="border px-4 py-2">
+                                                    ${paymentMedicine.totalPrice ? paymentMedicine.totalPrice.toFixed(2) : "0.00"}
+                                                </td>
+                                                <td className="border px-4 py-2 text-center">
+                                                    <Button
+                                                        onClick={() => handleRemoveItem(paymentMedicine.medicineId)}
+                                                        className="bg-red-500 text-white p-2 rounded-lg"
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </Table>
+                                    <div className="mt-4 font-bold text-xl">
+                                        Total Balance: ${calculateTotalBalance().toFixed(2)}
+                                    </div>
+                                </div>
+                                <div className="flex justify-end mt-6">
+                                    <button onClick={handlePlacePayment}
+                                            className="bg-green-500 text-white p-2 rounded">
+                                        Place Payment
+                                    </button>
                                 </div>
                             </div>
                         </div>
