@@ -22,10 +22,10 @@ export const Navigation = () => {
     const [open, setOpen] = useState(true);
 
     return (
-        <section className="flex gap-3">
+        <section className="flex gap-3 bg-purple-500">
             {/* Sidebar container */}
             <div
-                className={`bg-purple-500  shadow-xl z-[999] h-screen ${open ? 'w-64' : 'w-28'} duration-500 text-gray-100 px-4 md:relative fixed top-0`}>
+                className={`z-[999] h-screen ${open ? 'w-64' : 'w-28'} duration-500 text-gray-100 px-4 md:relative fixed top-0`}>
                 {/* Logo Section */}
 
                 <div className="py-3 flex justify-end">
