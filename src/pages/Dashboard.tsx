@@ -52,7 +52,7 @@ export default function Dashboard() {
                 <Container fluid>
                     <Row className="align-items-center mb-3">
                         <Col md={12}>
-                            <div className="bg-teal-600 p-3 rounded top-50">
+                            <div className=" p-3 rounded top-50">
                                 <Container fluid>
                                     <Row className="align-items-center">
                                         {/* Search Field */}

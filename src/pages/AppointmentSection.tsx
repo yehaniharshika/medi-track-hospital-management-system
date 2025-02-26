@@ -176,7 +176,7 @@ const AppointmentSection = () => {
 
     return (
         <>
-            <div className="flex overflow-hidden bg-emerald-200">
+            <div className="flex overflow-hidden ">
                 <Navigation/>
                 <div className="flex-1 p-5" style={{backgroundColor: "#cec4ff"}}>
                     <Container fluid>

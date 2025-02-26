@@ -107,7 +107,7 @@ const MedicalReportSection = () => {
     useEffect(() => {
         dispatch(getMedicalReports()).then((response) => {
             const nextReportId = generateNextMedicalReportId(response.payload);
-            setDoctorId(nextReportId); //automatically set the generated ID
+            setMedicalReportId(nextReportId); //automatically set the generated ID
         });
     }, [dispatch]);
 

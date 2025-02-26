@@ -4,12 +4,12 @@ export class Payment {
     paymentId: string;
     paymentDate: string;
     patientId: string;
-    items: PaymentDetails[];
+    medicines: PaymentDetails[];
 
-    constructor(paymentId: string, paymentDate: string,patientId: string, items: PaymentDetails[]) {
+    constructor(paymentId: string, paymentDate: string,patientId: string, medicines: PaymentDetails[]) {
         this.paymentId = paymentId;
         this.paymentDate = paymentDate;
         this.patientId = patientId;
-        this.items = items;
+        this.medicines = medicines;
     }
 }
