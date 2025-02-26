@@ -12,7 +12,7 @@ import {Payment} from "../models/Payment.ts";
 
 
 const PaymentSection = () => {
-    const [paymentId, setPaymentId] = useState("");
+    const [paymentId, setPaymentId] = useState<string>("");
     const [paymentDate, setPaymentDate] = useState("");
     const [totalPrice, setTotalPrice] = useState<number>(0); // Removed duplicate declaration
     const [getQty, setGetQty] = useState<number>(0);
@@ -27,22 +27,26 @@ const PaymentSection = () => {
     const payments = useSelector((state: RootState) => state.payments);
 
 
-    const generateNextPaymentId = (existingPayments : Payment[]) => {
+    // Generate Next Payment ID (Only for PI prefix)
+    const generateNextPaymentId = (existingPayments: Payment[]): string => {
         if (!existingPayments || existingPayments.length === 0) {
             return 'PI001';
         }
 
-        const paymentIds = existingPayments
-            .map(pay => pay.paymentId ? Number(pay.paymentId.replace('PI', '')) : 0)
+        const piPaymentIds = existingPayments
+            .map(pay => pay.paymentId)
+            .filter(id => id && id.startsWith('PI'))
+            .map(id => Number(id.replace('PI', '')))
             .filter(num => !isNaN(num));
 
-        if (paymentIds.length === 0) {
+        if (piPaymentIds.length === 0) {
             return 'PI001';
         }
 
-        const maxId = Math.max(...paymentIds);
-        const nextPaymentId = `PI${String(maxId + 1).padStart(3, '0')}`; // Increment and format
-        return nextPaymentId ? nextPaymentId : nextPaymentId;
+        const maxId = Math.max(...piPaymentIds);
+        const nextPaymentId = `PI${String(maxId + 1).padStart(3, '0')}`;
+
+        return nextPaymentId;
     };
 
 
@@ -50,7 +54,8 @@ const PaymentSection = () => {
         const today = new Date();
         const formattedDate = today.toISOString().split("T")[0]; // format as YYYY-MM-DD
         setPaymentDate(formattedDate);
-    }, [dispatch]);
+    }, []);
+
 
     useEffect(() => {
         dispatch(getPatients());
@@ -58,12 +63,23 @@ const PaymentSection = () => {
         dispatch(getPayments());
     }, [dispatch]);
 
+
     useEffect(() => {
-        if (payments.length > 0) {
-            const initialPaymentId = generateNextPaymentId(payments);
-            setPaymentId(initialPaymentId);
+        const storedPaymentId = localStorage.getItem("paymentId");
+
+        if (storedPaymentId) {
+            setPaymentId(storedPaymentId);  // Use stored paymentId if available
+        } else if (payments && payments.length > 0) {
+            // Generate the next payment ID based on existing payments
+            const nextPaymentId = generateNextPaymentId(payments);
+            setPaymentId(nextPaymentId);
+            localStorage.setItem("paymentId", nextPaymentId);  // Store the new paymentId
+        } else {
+            setPaymentId("PI001"); // Default value if no payments exist
         }
     }, [payments]);
+
+
 
     const handleMedicineSelect = (medicineId: string) => {
         if (!medicines || medicines.length === 0) {
@@ -80,7 +96,7 @@ const PaymentSection = () => {
 
         setSelectedMedicine(medicine);
         setGetQty(0);
-        setTotalPrice(getQty * selectedMedicine.unit_price); // Calculate total price here using medicine.unit_price
+        setTotalPrice(0); // Reset total price
     };
 
 
@@ -157,20 +173,29 @@ const PaymentSection = () => {
         const paymentData = {
             paymentId: paymentId,
             paymentDate,
-            patientId : selectedPatient,
+            patientId: selectedPatient,
             medicineItems: paymentMedicines.map((medicine, index) => ({
-                paymentDetailsId: `PD-${paymentId}-${index + 1}`, // Generate a unique ID for each order item
+                paymentDetailsId: `PD-${paymentId}-${index + 1}`,
                 medicineId: medicine.medicineId,
                 getQty: medicine.quantity_in_stock,
                 price: medicine.unit_price,
                 totalPrice: medicine.totalPrice,
             })),
         };
-        dispatch(createPayment(paymentData));
-        console.log("Payment placed: ",paymentData);
-        alert("Payment placed successfully");
-        resetForm();
+
+        dispatch(createPayment(paymentData)).then(() => {
+            alert("Payment placed successfully");
+            resetForm();
+
+            const nextPaymentId = generateNextPaymentId([...payments, paymentData]);
+            setPaymentId(nextPaymentId);
+            localStorage.setItem("paymentId", nextPaymentId);
+        }).catch((error) => {
+            console.error("Error placing payment:", error);
+            alert("Failed to place payment");
+        });
     };
+
 
     return (
         <>
@@ -195,10 +220,7 @@ const PaymentSection = () => {
                                         <Row className="align-items-center">
                                             <motion.h4
                                                 className="font-bold text-2xl text-neutral-100"
-                                                style={{
-                                                    fontFamily: "'Ubuntu', sans-serif",
-                                                    fontWeight: "bold",
-                                                }}
+                                                style={{fontFamily: "'Ubuntu', sans-serif", fontWeight: "bold", color: "white"}}
                                                 initial={{scale: 0.8, opacity: 0}}
                                                 animate={{scale: 1, opacity: 1}}
                                                 transition={{
@@ -221,18 +243,13 @@ const PaymentSection = () => {
                                 <Col md={6}>
                                     <Form className="p-4 border rounded bg-white shadow">
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="font-bold"
-                                                        style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>
                                                 Payment Id
                                             </Form.Label>
-                                            <Form.Control
-                                                className="border-2 border-black"
-                                                style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
-                                                type="text"
-                                                value={paymentId}
-                                                onChange={(e) => setPaymentId(e.target.value)}
-                                            />
+
+                                            <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px" }} type="text" value={paymentId}/>
                                         </Form.Group>
+
 
                                         <Form.Group className="mb-3">
                                             <Form.Label className="font-bold"
@@ -362,12 +379,7 @@ const PaymentSection = () => {
                             <div className="overflow-x-auto overflow-y-auto bg-gray-100 p-4 rounded-lg shadow-md"
                                  style={{width: "78%"}}>
                                 <div className="overflow-x-auto">
-                                    <Table
-                                        striped
-                                        bordered
-                                        hover
-                                        responsive
-                                        className="w-full text-center border border-gray-300 mx-auto"
+                                    <Table striped bordered hover responsive className="w-full text-center border border-gray-300 mx-auto"
                                     >
                                         <thead className="bg-red-500 text-white">
                                         <tr className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
@@ -405,14 +417,24 @@ const PaymentSection = () => {
                                         ))}
                                         </tbody>
                                     </Table>
-                                    <div className="mt-4 font-bold text-xl">
+                                    <div className="mt-4 font-bold text-xl" style={{fontFamily: "'Montserrat', serif", fontSize: "17px",color:"darkred"}}>
                                         Total Balance: ${calculateTotalBalance().toFixed(2)}
                                     </div>
                                 </div>
                                 <div className="flex justify-end mt-6">
                                     <button onClick={handlePlacePayment}
-                                            className="bg-green-500 text-white p-2 rounded">
-                                        Place Payment
+                                            className="bg-green-500 text-white p-2 rounded" style={{
+                                        fontFamily: "'Montserrat', serif",
+                                        fontSize: "15px", fontWeight: "600"
+                                    }}>
+                                        Place Order
+                                    </button>
+
+                                    <button onClick={handlePlacePayment}
+                                            className="text-white p-2 rounded" style={{
+                                        fontFamily: "'Montserrat', serif",
+                                        fontSize: "15px", fontWeight: "600" ,backgroundColor: "red"}}>
+                                        Generate Bill
                                     </button>
                                 </div>
                             </div>
