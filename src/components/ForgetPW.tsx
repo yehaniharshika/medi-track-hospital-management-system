@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import {resetPassword} from "../reducers/AuthSlice.ts";
 
@@ -41,18 +41,15 @@ const ForgetPw = () => {
     return (
         <div className="flex justify-center items-center h-screen bg-amber-600">
             <div className="absolute top-0 left-0 w-full h-full">
-                <img
-                    src="/src/images/photoScreen.jpg"
-                    alt="Background"
-                    className="w-full h-full object-cover"
-                />
+                <img src="/src/images/background04.png" alt="Background" className="w-full h-full object-cover"/>
+                <div className="absolute inset-0 bg-purple-900 opacity-60"></div>
             </div>
             <form
                 onSubmit={handleSubmit}
                 className="bg-teal-500 border border-b-gray-600 p-8 backdrop-blur-lg rounded shadow-md w-96 relative"
                 style={{
                     backdropFilter: 'blur(5px)',
-                    backgroundColor: 'rgba(85, 239, 196, 0.3)',
+                    backgroundColor: 'rgba(155, 89, 182, 0.3)',
                 }}>
                 <div className="flex justify-center items-center font-medium border-b border-gray-300 py-3 px-9">
                     <img src="/src/images/logo.png" alt="Logo" width={120} />
@@ -96,8 +93,8 @@ const ForgetPw = () => {
                 <div className="flex justify-center">
                     <button
                         type="submit"
-                        className="bg-teal-500 text-white p-2 w-32 border border-amber-50 rounded-full font-bold"
-                        style={{ fontFamily: "'Montserrat', serif", fontSize: '14px' }}
+                        className="bg-purple-900 text-white p-2 w-32 border border-amber-50 rounded-full font-bold"
+                        style={{ fontFamily: "'Montserrat', serif", fontSize: '14px',borderRadius:"10px" }}
                     >
                         Save Changes
                     </button>
@@ -106,10 +103,10 @@ const ForgetPw = () => {
                 <div className="flex justify-center">
                     <span
                         className="text-white"
-                        style={{ fontFamily: "'Montserrat', serif", fontSize: '14px' }}
+                        style={{ fontFamily: "'Montserrat', serif", fontSize: '14px',fontWeight:"500"  }}
                     >
                         Back to Login page{' '}
-                        <Link className="font-bold cursor-pointer" to="/login">
+                        <Link className="font-bold cursor-pointer" to="/login" style={{textDecoration: "none",color: "darkblue"}}>
                             Login
                         </Link>
                     </span>
