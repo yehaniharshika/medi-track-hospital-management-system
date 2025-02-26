@@ -6,6 +6,7 @@ import AppointmentSlice from "../reducers/AppointmentSlice.ts";
 import MedicineSlice from "../reducers/MedicineSlice.ts";
 import MedicalReportSlice from "../reducers/MedicalReportSlice.ts";
 import DepartmentSlice from "../reducers/DepartmentSlice.ts";
+import PaymentSlice from "../reducers/PaymentSlice.ts";
 
 
 
@@ -18,6 +19,7 @@ const store = configureStore({
         appointments : AppointmentSlice,
         medicines : MedicineSlice,
         medicalReports : MedicalReportSlice,
+        payments : PaymentSlice,
     },
 });
 

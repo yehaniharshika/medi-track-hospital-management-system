@@ -21,6 +21,18 @@ export const createPayment = createAsyncThunk(
     }
 );
 
+export const getPayments = createAsyncThunk(
+    'payment/getPayments',
+    async () => {
+        try {
+            const response = await api.get('/view');
+            return response.data;
+        }catch (error){
+            console.error('Error getting payment: ', error);
+        }
+    }
+);
+
 const paymentSlice = createSlice({
     name: 'payment',
     initialState,
@@ -39,6 +51,17 @@ const paymentSlice = createSlice({
             })
             .addCase(createPayment.pending, () => {
                 console.log("Pending create payment");
+            });
+
+        builder
+            .addCase(getPayments.fulfilled, (_, action) => {
+                return action.payload;
+            })
+            .addCase(getPayments.pending, (_, action) => {
+                console.log("Pending get Payments: ", action.payload);
+            })
+            .addCase(getPayments.rejected, (_, action) => {
+                console.error("Failed to get Payments: ", action.payload);
             });
     }
 });
