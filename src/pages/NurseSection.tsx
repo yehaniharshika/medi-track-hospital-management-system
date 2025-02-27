@@ -232,7 +232,7 @@ const NurseSection = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Nurse ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} type="text"
+                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px",fontWeight: "550" , color: "darkblue"}} type="text"
                                                       value={nurseId} onChange={e => setNurseId(e.target.value)}/>
                                     </Form.Group>
 

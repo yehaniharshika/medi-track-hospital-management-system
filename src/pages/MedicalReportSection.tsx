@@ -105,12 +105,11 @@ const MedicalReportSection = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(getMedicalReports()).then((response) => {
-            const nextReportId = generateNextMedicalReportId(response.payload);
-            setMedicalReportId(nextReportId); //automatically set the generated ID
-        });
-    }, [dispatch]);
-
+        if (medicalReports && medicalReports.length > 0) {
+            const nextMedicalReportId = generateNextMedicalReportId(medicalReports);
+            setMedicalReportId(nextMedicalReportId);
+        }
+    }, [medicalReports]);
 
 
     const handleEditMedicalReport = (medicalReport: MedicalReport) => {

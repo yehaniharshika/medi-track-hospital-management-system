@@ -247,7 +247,7 @@ const PaymentSection = () => {
                                                 Payment Id
                                             </Form.Label>
 
-                                            <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px" }} type="text" value={paymentId}/>
+                                            <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif", fontSize: "15px",fontWeight: "550" , color: "darkblue" }} type="text" value={paymentId}/>
                                         </Form.Group>
 
 
@@ -271,7 +271,7 @@ const PaymentSection = () => {
                                                 Select Patient
                                             </Form.Label>
                                             <Form.Select
-                                                style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
+                                                style={{fontFamily: "'Montserrat', serif", fontSize: "15px",}}
                                                 className="border-2 border-black"
                                                 aria-label="Default select example"
                                                 value={selectedPatient}
