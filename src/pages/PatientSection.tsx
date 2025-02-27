@@ -48,23 +48,22 @@ const PatientSection = () => {
         }
     };
 
-    const generateNextId = (existingPatients: Patient[]) => {
+    const generateNextPatientId = (existingPatients: Patient[]) => {
         if (!existingPatients || existingPatients.length === 0) {
-            return 'P001'; // Default start
+            return 'P001';
         }
 
-        // Filter valid patient IDs
-        const ids = existingPatients
+        const patientsIds = existingPatients
             .map(p => p.patientId ? Number(p.patientId.replace('P', '')) : 0)
-            .filter(num => !isNaN(num)); // Remove invalid IDs
+            .filter(num => !isNaN(num));
 
-        if (ids.length === 0) {
-            return 'P001'; // Default if no valid IDs
+        if (patientsIds.length === 0) {
+            return 'P001';
         }
 
-        const maxId = Math.max(...ids); // Get the highest numeric ID
-        const nextId = `P${String(maxId + 1).padStart(3, '0')}`; // Increment and format
-        return nextId;
+        const maxId = Math.max(...patientsIds);
+        const nextPatientId = `P${String(maxId + 1).padStart(3, '0')}`;
+        return nextPatientId;
     };
 
 
@@ -73,9 +72,9 @@ const PatientSection = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        if (patients.length > 0) {
-            const initialPatientId = generateNextId(patients);
-            setPatientId(initialPatientId);
+        if (patients && patients.length > 0) {
+            const nextPatientId = generateNextPatientId(patients);
+            setPatientId(nextPatientId); // Automatically set the generated ID
         }
     }, [patients]);
 
@@ -135,7 +134,7 @@ const PatientSection = () => {
         });
 
         resetForm();
-        setPatientId(generateNextId(patients));
+        setPatientId(generateNextPatientId(patients));
         handleClose();
     };
 
@@ -162,7 +161,7 @@ const PatientSection = () => {
             dispatch(getPatients());
         });
         resetForm();
-        setPatientId(generateNextId(patients));
+        setPatientId(generateNextPatientId(patients));
         handleClose();
     };
 
@@ -236,7 +235,7 @@ const PatientSection = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Patient ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                        <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="text"
                                                       value={patientId} onChange={e => setPatientId(e.target.value)}/>
                                     </Form.Group>
 

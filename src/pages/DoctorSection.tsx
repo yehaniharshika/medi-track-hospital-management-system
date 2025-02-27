@@ -50,7 +50,7 @@ const DoctorSection = () => {
         }
 
         const doctorIds = existingDoctors
-            .map(d => d.doctorId ? Number(d.doctorId.replace('D', '')) : 0)
+            .map(d => d.doctorId ? Number(d.doctorId.replace('DOC', '')) : 0)
             .filter(num => !isNaN(num));
 
         if (doctorIds.length === 0) {
@@ -59,7 +59,7 @@ const DoctorSection = () => {
 
         const maxId = Math.max(...doctorIds); // Get the highest numeric Id
         const nextDoctorId = `DOC${String(maxId + 1).padStart(3, '0')}`;
-        return nextDoctorId ? nextDoctorId : nextDoctorId;
+        return nextDoctorId;
     };
 
 
@@ -73,11 +73,11 @@ const DoctorSection = () => {
     }, [departments]);
 
     useEffect(() => {
-        dispatch(getDoctors()).then((response) => {
-            const nextDoctorId = generateNextDoctorId(response.payload);
-            setDoctorId(nextDoctorId); //automatically set the generated ID
-        });
-    }, [dispatch]);
+        if (doctors && doctors.length > 0) {
+            const nextDoctorId = generateNextDoctorId(doctors);
+            setDoctorId(nextDoctorId); // Automatically set the generated ID
+        }
+    }, [doctors]);
 
 
     const resetForm = () => {
@@ -234,7 +234,7 @@ const DoctorSection = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Doctor ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                        <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}}  type="text"
                                                       value={doctorId} onChange={e => setDoctorId(e.target.value)}/>
                                     </Form.Group>
 
@@ -263,14 +263,42 @@ const DoctorSection = () => {
                                     </Form.Group>
 
                                     <Form.Group className="mb-3">
-                                        <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Specialty</Form.Label>
-                                        <Form.Control placeholder="Enter specialty"
-                                                      className="border-2 border-black"
-                                                      style={{ fontFamily: "'Montserrat', serif" ,
-                                                          fontSize: "15px"}} type="text"
-                                                      value={specialty}
-                                                      onChange={e => setSpecialty(e.target.value)}/>
+                                        <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>Specialty</Form.Label>
+                                        <Form.Select
+                                            className="border-2 border-black"
+                                            style={{ fontFamily: "'Montserrat', serif", fontSize: "15px" }}
+                                            value={specialty}
+                                            onChange={e => setSpecialty(e.target.value)}
+                                        >
+                                            <option value="">Select specialty</option>
+                                            <option value="mbbs.(col),d. path md haematology">MBBS.(Col),D. Path MD Haematology</option>
+                                            <option value="mbbs.(col),d. path md-cardiology">MBBS.(Col),D. Path MD Cardiology</option>
+                                            <option value="mbbs.(col),d. path md-neurology">MBBS.(Col),D. Path MD Neurology</option>
+                                            <option value="mbbs.(col),d. path md-dermatology">MBBS.(Col),D. Path MD Dermatology</option>
+                                            <option value="mbbs.(col),d. path md-pediatrics">MBBS.(Col),D. Path MD Pediatrics</option>
+                                            <option value="mbbs.(col),d. path md-psychiatry">MBBS.(Col),D. Path MD Psychiatry</option>
+                                            <option value="mbbs.(col),d. path md-radiology">MBBS.(Col),D. Path MD Radiology</option>
+                                            <option value="mbbs.(col),d. path md-anesthesiology">MBBS.(Col),D. Path MD Anesthesiology</option>
+                                            <option value="mbbs.(col),d. path md-surgery">MBBS.(Col),D. Path MD Surgery</option>
+                                            <option value="md-medicine">MD General Medicine</option>
+                                            <option value="mbbs-md-cardiology">MBBS. MD Cardiology</option>
+                                            <option value="mbbs-md-neurology">MBBS. MD Neurology</option>
+                                            <option value="mbbs-md-dermatology">MBBS. MD Dermatology</option>
+                                            <option value="mbbs-md-pediatrics">MBBS. MD Pediatrics</option>
+                                            <option value="mbbs-md-psychiatry">MBBS. MD Psychiatry</option>
+                                            <option value="mbbs-md-radiology">MBBS. MD Radiology</option>
+                                            <option value="mbbs-md-surgery">MBBS. MD Surgery</option>
+                                            <option value="mbbs-md-medicine">MBBS. MD General Medicine</option>
+                                            <option value="mbbs-md-haematology">MBBS. MD Haematology</option>
+                                            <option value="mbbs-mrcp">MBBS. MRCP</option>
+                                            <option value="mbbs-frcs">MBBS. FRCS</option>
+                                            <option value="mbbs-dch">MBBS. DCH</option>
+                                            <option value="mbbs-dgo">MBBS. DGO</option>
+                                            <option value="mbbs-dlo">MBBS. DLO</option>
+                                            <option value="mbbs-d-ortho">MBBS. D. Ortho</option>
+                                        </Form.Select>
                                     </Form.Group>
+
 
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Image</Form.Label>

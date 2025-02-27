@@ -31,11 +31,17 @@ const MedicineSection = () => {
     const medicines = useSelector((state: RootState) => state.medicines);
 
     useEffect(() => {
+        dispatch(getMedicines());
+    }, [dispatch]);
+
+
+    useEffect(() => {
         if (medicines.length > 0) {
             const initialMedicineId = generateNextMedicineId(medicines);
             setMedicineId(initialMedicineId);
         }
     }, [medicines]);
+
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -52,7 +58,7 @@ const MedicineSection = () => {
 
     const generateNextMedicineId = (existingMedicines: Medicine[]) => {
         if (!existingMedicines || existingMedicines.length === 0) {
-            return 'M001';
+            return 'M001'; // Default if no medicines
         }
 
         const medicineIds = existingMedicines
@@ -65,12 +71,16 @@ const MedicineSection = () => {
 
         const maxId = Math.max(...medicineIds); // Get the highest numeric Id
         const nextMedicineId = `M${String(maxId + 1).padStart(3, '0')}`; // Increment and format
-        return nextMedicineId ? nextMedicineId : nextMedicineId;
+        return nextMedicineId;
     };
 
+
     useEffect(() => {
-        dispatch(getMedicines());
-    }, [dispatch]);
+        if (medicines && medicines.length > 0) {
+            const nextMedicineId = generateNextMedicineId(medicines);
+            setMedicineId(nextMedicineId); // Automatically set the generated ID
+        }
+    }, [medicines]);
 
 
     const handleEditMedicine = (medicine: Medicine) => {
@@ -228,7 +238,7 @@ const MedicineSection = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Medicine ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                        <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px",}} type="text"
                                                       value={medicineId} onChange={e => setMedicineId(e.target.value)}/>
                                     </Form.Group>
 

@@ -175,7 +175,7 @@ const DepartmentSection = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>Department ID</Form.Label>
-                                        <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text"
+                                        <Form.Control className="border-2 border-black" style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px"}} type="text"
                                                       value={departmentId} onChange={e => setDepartmentId(e.target.value)}/>
                                     </Form.Group>
 
