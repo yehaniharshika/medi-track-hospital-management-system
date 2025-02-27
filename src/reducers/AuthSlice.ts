@@ -1,66 +1,87 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {User} from "../models/User.ts";
+// src/slices/authSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-// Define the AuthState structure
-export interface AuthState {
-    users: User[];
-    isLoggedIn: boolean;
-    currentUser: User | null;
+// Define AuthState to store both tokens
+interface AuthState {
+    accessToken: string | null;
+    refreshToken: string | null;
+    status: 'idle' | 'loading' | 'succeeded' | 'failed';
+    error: string | null;
 }
 
-// Initial state
+// Initialize state from localStorage
 const initialState: AuthState = {
-    users: [],
-    isLoggedIn: false,
-    currentUser: null,
+    accessToken: localStorage.getItem('accessToken'),
+    refreshToken: localStorage.getItem('refreshToken'),
+    status: 'idle',
+    error: null,
 };
 
-// Create the slice
+// Async Thunk for User Login
+export const loginUser = createAsyncThunk<{ accessToken: string; refreshToken: string }, { username: string; password: string }>(
+    'auth/login',
+    async (credentials, { rejectWithValue }) => {
+        try {
+            const response = await axios.post('http://localhost:3003/auth/login', credentials);
+            const { accessToken, refreshToken } = response.data;
+
+            // Store tokens in localStorage
+            localStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('refreshToken', refreshToken);
+
+            // Return tokens
+            return { accessToken, refreshToken };
+        } catch (error: any) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+// Async Thunk for User Registration
+export const registerUser = createAsyncThunk<void, { name: string; username: string; password: string; role: string }>(
+    'auth/register',
+    async (userData, { rejectWithValue }) => {
+        try {
+            await axios.post('http://localhost:3003/auth/register', userData);
+        } catch (error: any) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+// Create Auth Slice
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        signup: (state, action: PayloadAction<User>) => {
-            const existingUser = state.users.find((u) => u.email === action.payload.email);
-
-            if (existingUser) {
-                throw new Error('An account with this email already exists.');
-            }
-
-            state.users.push(action.payload);
+        logout(state) {
+            state.accessToken = null;
+            state.refreshToken = null;
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
         },
-        login: (state, action: PayloadAction<{ email: string; password: string }>) => {
-            const { email, password } = action.payload;
-            const user = state.users.find((u) => u.email === email);
-
-            if (!user) {
-                throw new Error('No account found with this email.');
-            }
-
-            if (user.password !== password) {
-                throw new Error('The password you entered is incorrect.');
-            }
-
-            state.isLoggedIn = true;
-            state.currentUser = user;
-        },
-        logout: (state) => {
-            state.isLoggedIn = false;
-            state.currentUser = null;
-        },
-        resetPassword: (state, action: PayloadAction<{ email: string; newPassword: string }>) => {
-            const { email, newPassword } = action.payload;
-            const user = state.users.find((u) => u.email === email);
-
-            if (!user) {
-                throw new Error('No account found with this email.');
-            }
-
-            user.password = newPassword;
-        },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
+                state.accessToken = action.payload.accessToken;
+                state.refreshToken = action.payload.refreshToken;
+                state.status = 'succeeded';
+            })
+            .addCase(loginUser.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+            })
+            .addCase(registerUser.fulfilled, (state) => {
+                state.status = 'succeeded';
+            })
+            .addCase(registerUser.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload as string;
+            });
     },
 });
 
-// Export actions and reducer
-export const { signup, login, logout, resetPassword } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

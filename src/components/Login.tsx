@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 
+
+import {loginUser} from "../reducers/AuthSlice.ts";
+import {AppDispatch} from "../store/Store.ts";
 import {useDispatch} from "react-redux";
 
-import {login} from "../reducers/AuthSlice.ts";
-
 const Login = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const dispatch = useDispatch();
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,15 +18,18 @@ const Login = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        try {
-            dispatch(login(formData));
-            alert('Login Successful!');
-            navigate('/dashboard'); // Navigate to a dashboard page after successful login
-        } catch (error: any) {
-            alert(error.message); // Handle incorrect password or no account found
-        }
+        dispatch(loginUser(formData))
+            .then((response: any) => {
+                console.log('Access Token:', response.payload.accessToken);
+                console.log('Refresh Token:', response.payload.refreshToken);
+                alert('Login Successful!');
+                navigate('/dashboard');
+            })
+            .catch((error: any) => {
+                console.error('Login Error:', error);
+            });
     };
+
 
     return (
         <div className="flex justify-center items-center h-screen relative">
@@ -48,10 +52,10 @@ const Login = () => {
                     Login
                 </h2>
                 <input
-                    type="email"
-                    name="email"
+                    type="text"
+                    name="username"
                     placeholder="Email"
-                    value={formData.email}
+                    value={formData.username}
                     onChange={handleChange}
                     className="w-full mb-4 p-2 border rounded border-solid border-black"
                     style={{
@@ -59,6 +63,7 @@ const Login = () => {
                         fontSize: '14px',
                     }}
                 />
+
                 <input
                     type="password"
                     name="password"

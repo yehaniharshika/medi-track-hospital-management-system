@@ -1,41 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
+
 import { Link } from 'react-router-dom';
-import {signup} from "../reducers/AuthSlice.ts";
+import {registerUser} from "../reducers/AuthSlice.ts";
+import {AppDispatch} from "../store/Store.ts";
+import {useDispatch} from "react-redux";
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
         name: '',
-        email: '',
+        username: '',
         password: '',
-        role: '',
+        role: ''
     });
-
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        const { name, email, password, role } = formData;
-
-        if (!name || !email || !password || !role || role === 'Select role') {
-            alert('Please input all fields.');
-            return;
-        }
-
-        try {
-            dispatch(signup({ name, email, password, role }));
-            alert(`Sign-Up Successful for ${name}`);
+        dispatch(registerUser(formData)).then(() => {
             navigate('/login');
-        } catch (error: any) {
-            alert(error.message); // Handle existing email error
-        }
+        });
     };
 
     return (
@@ -63,10 +53,10 @@ const SignUp = () => {
                        }}
                 />
                 <input
-                    type="email"
-                    name="email"
+                    type="text"
+                    name="username"
                     placeholder="Email"
-                    value={formData.email}
+                    value={formData.username}
                     onChange={handleChange}
                     className="w-full mb-4 p-2 border rounded border-solid border-black"
                     style={{
