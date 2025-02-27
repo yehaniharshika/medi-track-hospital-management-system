@@ -9,6 +9,7 @@ import {createPayment, getPayments} from "../reducers/PaymentSlice.ts";
 import {getPatients} from "../reducers/PatientSlice.ts";
 import {getMedicines} from "../reducers/MedicineSlice.ts";
 import {Payment} from "../models/Payment.ts";
+import {jsPDF} from "jspdf";
 
 
 const PaymentSection = () => {
@@ -19,6 +20,8 @@ const PaymentSection = () => {
     const [selectedPatient, setSelectedPatient] = useState<any>(null);
     const [selectedMedicine, setSelectedMedicine] = useState<any>(null);
     const [paymentMedicines, setPaymentMedicines] = useState<any[]>([]);
+    const [patientName, setPatientName] = useState("");
+    const [age, setAge] = useState("");
 
     const dispatch = useDispatch<AppDispatch>();
 
@@ -55,6 +58,21 @@ const PaymentSection = () => {
         const formattedDate = today.toISOString().split("T")[0]; // format as YYYY-MM-DD
         setPaymentDate(formattedDate);
     }, []);
+
+    useEffect(() => {
+        if (selectedPatient) {
+            // Find the patient based on selectedPatientId
+            const patient = patients.find((p) => p.patientId === selectedPatient);
+            if (patient) {
+                setPatientName(patient.patientName);
+                setAge(patient.age);
+            } else {
+                setPatientName('');  // Reset in case of no patient found
+                setAge('');
+            }
+        }
+    }, [selectedPatient, patients]);
+
 
 
     useEffect(() => {
@@ -185,7 +203,6 @@ const PaymentSection = () => {
 
         dispatch(createPayment(paymentData)).then(() => {
             alert("Payment placed successfully");
-            resetForm();
 
             const nextPaymentId = generateNextPaymentId([...payments, paymentData]);
             setPaymentId(nextPaymentId);
@@ -196,6 +213,80 @@ const PaymentSection = () => {
         });
     };
 
+
+    const generatePaymentBill = () => {
+        if (!paymentId || !paymentDate || paymentMedicines.length === 0 || !selectedPatient) {
+            alert("Missing payment details or medicines. Please ensure the payment is created.");
+            return;
+        }
+
+        const patient = patients.find((pat) => pat.patientId === selectedPatient);
+        const patientId = patient ? patient.patientId : "Unknown Patient";
+
+        const doc = new jsPDF();
+
+        // Add Ubuntu Font
+        doc.addFileToVFS("Ubuntu-Regular.ttf", "<BASE64_ENCODED_UBUNTU_REGULAR>");
+        doc.addFont("Ubuntu-Regular.ttf", "Ubuntu", "normal");
+        doc.addFileToVFS("Ubuntu-Bold.ttf", "<BASE64_ENCODED_UBUNTU_BOLD>");
+        doc.addFont("Ubuntu-Bold.ttf", "Ubuntu", "bold");
+
+        // Use the bold Ubuntu font for the title
+        doc.setFont("Ubuntu", "bold");
+        doc.setFontSize(20);
+        doc.text("MediTrack Healthcare Services(Pvt) .Ltd", 80, 20);
+
+        // Use regular Ubuntu font for other text
+        doc.setFont("Ubuntu", "normal");
+        doc.setFontSize(12);
+        doc.text("66, DS Senanayaka Street, Panadura", 65, 30);
+        doc.text("Tel: 038-2233185", 85, 40);
+        doc.line(20, 45, 190, 45); // Line separator
+
+        // Order Details
+        doc.text(`Payment ID: ${paymentId}`, 20, 55);
+        doc.text(`Payment Date: ${paymentDate}`, 20, 65);
+        doc.text(`Patient: ${patientId}`, 20, 75);
+
+
+        // Table Headers
+        let yOffset = 90;
+        doc.setFontSize(10);
+        doc.text("No", 20, yOffset);
+        doc.text("Medicine Name", 40, yOffset);
+        doc.text("Qty", 100, yOffset);
+        doc.text("Price", 120, yOffset);
+        doc.text("Total", 150, yOffset);
+        doc.line(20, yOffset + 5, 190, yOffset + 5); // Table header line
+
+        // Order Items
+        paymentMedicines.forEach((medicine, index) => {
+            yOffset += 10;
+            const medicinePrice = Number(medicine.unit_price);
+            const totalPrice = Number(medicine.totalPrice);
+
+            yOffset += 10;
+            doc.text(`${index + 1}`, 20, yOffset);
+            doc.text(medicine.medicineName, 40, yOffset);
+            doc.text(`${medicine.quantity_in_stock}`, 100, yOffset);
+            doc.text(`$${medicinePrice.toFixed(2)}`, 120, yOffset);
+            doc.text(`$${totalPrice.toFixed(2)}`, 150, yOffset);
+        });
+
+        // Total Balance
+        yOffset += 15;
+        doc.line(20, yOffset, 190, yOffset);
+        doc.text(`Total Balance: $${calculateTotalBalance().toFixed(2)}`, 150, yOffset + 10);
+
+        // Footer Message
+        doc.setFontSize(12);
+        doc.text("THANK YOU! COME AGAIN!", 70, yOffset + 20);
+        doc.text("Email: meditrackhealthcare@gmail.com", 70, yOffset + 30);
+
+        // Save the generated PDF
+        doc.save(`order-bill-${paymentId}.pdf`);
+        resetForm();
+    };
 
     return (
         <>
@@ -287,20 +378,19 @@ const PaymentSection = () => {
                                         </Form.Group>
 
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="font-bold"
-                                                        style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>
                                                 Patient Full Name
                                             </Form.Label>
-                                            <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text" value={selectedPatient?.name || ""} readOnly/>
+                                            <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px",}} type="text" value={patientName || ""} readOnly/>
                                         </Form.Group>
 
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="font-bold"
-                                                        style={{fontFamily: "'Ubuntu', sans-serif"}}>
+                                            <Form.Label className="font-bold" style={{ fontFamily: "'Ubuntu', sans-serif" }}>
                                                 Age
                                             </Form.Label>
-                                            <Form.Control className="border-2 border-black" style={{fontFamily: "'Ubuntu', sans-serif"}} type="text" value={selectedPatient?.name || ""} readOnly/>
+                                            <Form.Control className="border-2 border-black" style={{fontFamily: "'Montserrat', serif", fontSize: "15px",}} type="text" value={age || ""} readOnly/>
                                         </Form.Group>
+
 
                                         <Form.Group className="mb-3">
                                             <Form.Label className="font-bold"
@@ -339,28 +429,19 @@ const PaymentSection = () => {
                                                 />
 
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Price</Form.Label>
-                                                <Form.Control type="text" value={selectedMedicine.unit_price}
-                                                       style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
-                                                       className="border p-2 rounded w-full"
-                                                       disabled
-                                                />
+                                                <Form.Control type="text" value={selectedMedicine.unit_price} style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border p-2 rounded w-full" disabled/>
 
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Stock</Form.Label>
                                                 <Form.Control type="text" value={selectedMedicine.quantity_in_stock}
-                                                       className="border p-2 rounded w-full" disabled/>
+                                                              style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border p-2 rounded w-full" disabled/>
 
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Get Quantity</Form.Label>
-                                                <Form.Control
-                                                    type="number"
-                                                    value={getQty}
-                                                    min="0"
-                                                    max={selectedMedicine.quantity_in_stock}
-                                                    onChange={handleQuantityChange}
+                                                <Form.Control type="number" value={getQty} min="0" max={selectedMedicine.quantity_in_stock} style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} onChange={handleQuantityChange}
                                                     className="border p-2 rounded w-full"
                                                 />
 
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Total Price</Form.Label>
-                                                <Form.Control type="text" value={totalPrice}
+                                                <Form.Control type="text" value={totalPrice} style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}}
                                                        className="border p-2 rounded w-full" disabled/>
 
                                                 <br/>
@@ -390,11 +471,7 @@ const PaymentSection = () => {
                                             <th className="px-4 py-2 border">Actions</th>
                                         </tr>
                                         </thead>
-                                        <tbody style={{
-                                            fontFamily: "'Montserrat', serif",
-                                            fontSize: "14px",
-                                            fontWeight: "400"
-                                        }}>
+                                        <tbody style={{fontFamily: "'Montserrat', serif", fontSize: "14px", fontWeight: "400"}}>
                                         {paymentMedicines.map((paymentMedicine) => (
                                             <tr key={paymentMedicine.medicineId}>
                                                 <td className="border px-4 py-2">{paymentMedicine.medicineName}</td>
@@ -406,10 +483,7 @@ const PaymentSection = () => {
                                                     ${paymentMedicine.totalPrice ? paymentMedicine.totalPrice.toFixed(2) : "0.00"}
                                                 </td>
                                                 <td className="border px-4 py-2 text-center">
-                                                    <Button
-                                                        onClick={() => handleRemoveItem(paymentMedicine.medicineId)}
-                                                        className="bg-red-500 text-white p-2 rounded-lg"
-                                                    >
+                                                    <Button onClick={() => handleRemoveItem(paymentMedicine.medicineId)} className="bg-red-500 text-white p-2 rounded-lg">
                                                         Remove
                                                     </Button>
                                                 </td>
@@ -422,18 +496,11 @@ const PaymentSection = () => {
                                     </div>
                                 </div>
                                 <div className="flex justify-end mt-6">
-                                    <button onClick={handlePlacePayment}
-                                            className="bg-green-500 text-white p-2 rounded" style={{
-                                        fontFamily: "'Montserrat', serif",
-                                        fontSize: "15px", fontWeight: "600"
-                                    }}>
+                                    <button onClick={handlePlacePayment} className="bg-green-500 text-white p-2 rounded" style={{fontFamily: "'Montserrat', serif", fontSize: "15px", fontWeight: "600"}}>
                                         Place Order
                                     </button>
 
-                                    <button onClick={handlePlacePayment}
-                                            className="text-white p-2 rounded" style={{
-                                        fontFamily: "'Montserrat', serif",
-                                        fontSize: "15px", fontWeight: "600" ,backgroundColor: "red"}}>
+                                    <button onClick={generatePaymentBill} className="text-white p-2 rounded" style={{fontFamily: "'Montserrat', serif", fontSize: "15px", fontWeight: "600" ,backgroundColor: "red"}}>
                                         Generate Bill
                                     </button>
                                 </div>
