@@ -343,8 +343,7 @@ const NurseSection = () => {
                                     fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="primary" onClick={handleAddNurse}>Save</Button>
                                 <Button  style={{ fontFamily: "'Montserrat', serif" ,
                                     fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="success" onClick={handleUpdateNurse}>Update</Button>
-                                <Button  style={{ fontFamily: "'Montserrat', serif" ,
-                                    fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
+                                <Button  style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}} className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
                             </Modal.Footer>
                         </Modal>
                         <br/>
@@ -357,11 +356,11 @@ const NurseSection = () => {
                                         <th className="px-4 py-2 border">Nurse ID</th>
                                         <th className="px-4 py-2 border">Full Name</th>
                                         <th className="px-4 py-2 border">Profile pic</th>
-                                        <th className="px-4 py-2 border">DOB</th>
                                         <th className="px-4 py-2 border">Gender</th>
                                         <th className="px-4 py-2 border">Phone</th>
                                         <th className="px-4 py-2 border">Qualification</th>
                                         <th className="px-4 py-2 border">Email</th>
+                                        <th className="px-4 py-2 border">DepartmentId</th>
                                         <th className="px-4 py-2 border">Action</th>
                                     </tr>
                                     </thead>

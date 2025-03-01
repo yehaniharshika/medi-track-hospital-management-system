@@ -11,6 +11,7 @@ import {AppDispatch, RootState} from "../store/Store.ts";
 import { deleteDoctor, getDoctors, saveDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
 import {Doctor} from "../models/Doctor.ts";
 
+
 const DoctorSection = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -73,11 +74,11 @@ const DoctorSection = () => {
     }, [departments]);
 
     useEffect(() => {
-        if (doctors && doctors.length > 0) {
-            const nextDoctorId = generateNextDoctorId(doctors);
-            setDoctorId(nextDoctorId); // Automatically set the generated ID
-        }
-    }, [doctors]);
+        dispatch(getDoctors()).then((response) => {
+            const nextDoctorId = generateNextDoctorId(response.payload);
+            setDoctorId(nextDoctorId); //automatically set the generated ID
+        });
+    }, [dispatch]);
 
 
     const resetForm = () => {
@@ -353,10 +354,10 @@ const DoctorSection = () => {
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button className="font-bold" variant="primary" onClick={handleAddDoctor}>Save</Button>
-                                <Button className="font-bold" variant="success" onClick={handleUpdateDoctor}>Update</Button>
-                                <Button className="font-bold" variant="danger">Delete</Button>
-                                <Button className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
+                                <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="primary" onClick={handleAddDoctor}>Save</Button>
+                                <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="success" onClick={handleUpdateDoctor}>Update</Button>
+                                <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="danger">Delete</Button>
+                                <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
                             </Modal.Footer>
                         </Modal>
                         <br/>
