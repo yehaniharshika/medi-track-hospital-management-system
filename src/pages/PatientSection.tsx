@@ -167,9 +167,7 @@ const PatientSection = () => {
 
     const handleDeletePatient = (event: React.MouseEvent<HTMLButtonElement>, patientId: string) => {
         event.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this Patient?")) {
-            dispatch(deletePatient(patientId));
-        }
+        dispatch(deletePatient(patientId));
     };
 
 
