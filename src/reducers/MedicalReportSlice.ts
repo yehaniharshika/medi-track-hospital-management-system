@@ -1,6 +1,7 @@
 import {MedicalReport} from "../models/ MedicalReport.ts";
 import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export const initialState: MedicalReport[] = [];
 
@@ -11,11 +12,50 @@ const api = axios.create({
 export const saveMedicalReport = createAsyncThunk(
     "medicalReport/saveMedicalReport",
     async (medicalReport: MedicalReport) => {
+        const token = localStorage.getItem("accessToken");
+
         try {
-            const response = await api.post('/add',medicalReport );
+            const response = await api.post('/add',medicalReport,{
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            Swal.fire({
+                title: "✅ Success!",
+                html: '<p class="swal-text">Medical Report saved successfully.</p>', // Added class for styling
+                icon: "success",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "green",
+                timer: 3000, // Auto-close after 10 seconds
+                width: "450px", // Small window size
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
             return response.data;
         }catch(error) {
             console.error("Error saving Medical Report:", error);
+            Swal.fire({
+                title: "Error!",
+                html: '<p class="swal-text">Failed to save Medical Report.</p>', // Added class for styling
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "green",
+                timer: 3000, // Auto-close after 10 seconds
+                width: "420px", // Small window size
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
             throw error;
         }
     }
@@ -24,8 +64,31 @@ export const saveMedicalReport = createAsyncThunk(
 export const updateMedicalReport = createAsyncThunk(
     'medicalReport/updateMedicalReport',
     async (medicalReport: MedicalReport) => {
+        const token = localStorage.getItem("accessToken");
+
         try {
-            const response = await api.put(`/update/${medicalReport.medicalReportId}`, medicalReport);
+            const response = await api.put(`/update/${medicalReport.medicalReportId}`, medicalReport, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            Swal.fire({
+                title: "✅ Success!",
+                html: '<p class="swal-text">Medical Report updated successfully.</p>', // Added class for styling
+                icon: "success",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "green",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
             return response.data;
         }catch (error){
             console.error("Error updating Medical Report: ", error);
@@ -37,20 +100,90 @@ export const updateMedicalReport = createAsyncThunk(
 export const deleteMedicalReport = createAsyncThunk(
     'medicalReport/deleteMedicalReport',
     async (medicalReportId : string) => {
-        try {
-            const response = await api.delete(`/delete/${medicalReportId}`);
-            return response.data;
-        }catch (error){
-            console.error("Error deleting Medical Report: ", error);
+        const token = localStorage.getItem("accessToken");
+
+        const result = await Swal.fire({
+            title: "⚠️ Are you sure?",
+            html: '<p class="swal-text">Do you really want to delete this Medical Report?</p>',
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Delete",
+            cancelButtonText: "No, Cancel",
+            background: "white",
+            color: "black",
+            confirmButtonColor: "red",
+            cancelButtonColor: "gray",
+            width: "450px",
+            customClass: {
+                title: "swal-title",
+                popup: "swal-popup",
+                confirmButton: "swal-button",
+                cancelButton: "swal-cancel-button"
+            }
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await api.delete(`/delete/${medicalReportId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
+                // Show success message
+                Swal.fire({
+                    title: "✅ Deleted!",
+                    html: '<p class="swal-text">successfully deleted Medical Report.</p>',
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    background: "white",
+                    color: "black",
+                    confirmButtonColor: "green",
+                    timer: 3000,
+                    width: "450px",
+                    customClass: {
+                        title: "swal-title",
+                        popup: "swal-popup",
+                        confirmButton: "swal-button",
+                    }
+                });
+                return response.data;
+            }catch (error){
+                console.error("Error deleting Medical Report: ", error);
+                // Show error message
+                Swal.fire({
+                    title: "❌ Error!",
+                    html: '<p class="swal-text">Failed to delete Medical Report.</p>',
+                    icon: "error",
+                    confirmButtonText: "OK",
+                    background: "white",
+                    color: "black",
+                    confirmButtonColor: "red",
+                    timer: 3000,
+                    width: "450px",
+                    customClass: {
+                        title: "swal-title",
+                        popup: "swal-popup",
+                        confirmButton: "swal-button",
+                    }
+                });
+
+            }
         }
+
     }
 );
 
 export const getMedicalReports = createAsyncThunk(
     'medicalReport/getMedicalReports',
     async () => {
+        const token = localStorage.getItem("accessToken");
+
         try {
-            const response = await api.get('/view');
+            const response = await api.get('/view',{
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             return response.data;
         }catch (error){
             console.error("Error:", error);

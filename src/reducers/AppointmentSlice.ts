@@ -94,23 +94,6 @@ export const updateAppointment = createAsyncThunk(
             return response.data;  // Ensure the updated appointment is returned
         } catch (error) {
             console.error("Error updating Appointment: ", error);
-            Swal.fire({
-                title: "Error!",
-                html: '<p class="swal-text">Failed to update Appointment.</p>',
-                icon: "error",
-                confirmButtonText: "OK",
-                background: "white",
-                color: "black",
-                confirmButtonColor: "green",
-                timer: 3000,
-                width: "420px",
-                customClass: {
-                    title: "swal-title",
-                    popup: "swal-popup",
-                    confirmButton: "swal-button",
-                },
-            });
-
         }
     }
 );

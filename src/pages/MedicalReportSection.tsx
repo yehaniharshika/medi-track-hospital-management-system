@@ -167,9 +167,8 @@ const MedicalReportSection = () => {
 
     const handleDeleteMedicalReport = (event: React.MouseEvent<HTMLButtonElement>, medicalReportId: string) => {
         event.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this Appointment?")) {
-            dispatch(deleteMedicalReport(medicalReportId));
-        }
+        dispatch(deleteMedicalReport(medicalReportId));
+
     };
 
     const getBase64Image = (imgPath: string): Promise<string> => {
