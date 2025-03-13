@@ -202,7 +202,6 @@ const PaymentSection = () => {
         };
 
         dispatch(createPayment(paymentData)).then(() => {
-            alert("Payment placed successfully");
 
             const nextPaymentId = generateNextPaymentId([...payments, paymentData]);
             setPaymentId(nextPaymentId);

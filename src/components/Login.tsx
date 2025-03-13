@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
-
-
 import {loginUser} from "../reducers/AuthSlice.ts";
 import {AppDispatch} from "../store/Store.ts";
 import {useDispatch} from "react-redux";
+import Swal from "sweetalert2";
+import "../pages/style/alert.css"
 
 const Login = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
@@ -33,8 +33,25 @@ const Login = () => {
                 console.log("Stored Access Token:", localStorage.getItem("accessToken"));
                 console.log("Stored Refresh Token:", localStorage.getItem("refreshToken"));
 
-                alert("Login Successful!");
-                navigate("/dashboard");
+                // Show success alert
+                Swal.fire({
+                    title: "✅ Success!",
+                    html: '<p class="swal-text">Login Successful!</p>', // Added class for styling
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    background: "white",
+                    color: "black",
+                    confirmButtonColor: "green",
+                    timer: 3000, // Auto-close after 10 seconds
+                    width: "450px", // Small window size
+                    customClass: {
+                        title: "swal-title",
+                        popup: "swal-popup",
+                        confirmButton: "swal-button",
+                    }
+                }).then(() => {
+                    navigate("/dashboard");
+                });
             })
             .catch((error: any) => {
                 console.error("Login Error:", error);

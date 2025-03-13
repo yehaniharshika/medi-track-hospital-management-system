@@ -33,14 +33,14 @@ const Logout = () => {
                             <Modal.Header closeButton>
                                 <Modal.Title>Confirm Logout</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>
+                            <Modal.Body style={{ fontFamily: "'Montserrat', serif", fontSize: "15px",fontWeight: "550" }}>
                                 Are you sure you want to log out?
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button variant="secondary" onClick={handleClose}>
+                                <Button  style={{ fontFamily: "'Montserrat', serif", fontSize: "15px",fontWeight: "550" }}variant="secondary" onClick={handleClose}>
                                     No
                                 </Button>
-                                <Button variant="danger" onClick={handleLogout}>
+                                <Button  style={{ fontFamily: "'Montserrat', serif", fontSize: "15px",fontWeight: "550" }}variant="danger" onClick={handleLogout}>
                                     Yes
                                 </Button>
                             </Modal.Footer>

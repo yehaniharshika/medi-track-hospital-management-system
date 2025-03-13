@@ -182,7 +182,7 @@ export const getDepartments = createAsyncThunk(
     async () =>{
         const token = localStorage.getItem("accessToken");
         try {
-            const response = await api.get('/view',{
+            const  response = await api.get('/view',{
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
