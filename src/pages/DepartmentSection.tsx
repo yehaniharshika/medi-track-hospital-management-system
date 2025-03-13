@@ -105,10 +105,9 @@ const DepartmentSection = () => {
 
     const handleDeleteDepartment = (event: React.MouseEvent<HTMLButtonElement>, departmentId: string) => {
         event.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this Nurse?")) {
-            dispatch(deleteDepartment(departmentId));
-        }
+        dispatch(deleteDepartment(departmentId));
     };
+
 
 
     return (
