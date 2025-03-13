@@ -132,12 +132,12 @@ export const Navigation = () => {
                             </NavLink>
                         </li>
                         <li>
-                            <NavLink to="/login" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
+                            <NavLink to="/logout" className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg transition-all duration-300 text-[15.5px] 
                                 ${isActive ? "bg-violet-400 text-blue-950 shadow-md scale-105" : "text-gray-800"} 
                                 hover:bg-violet-400 hover:text-white hover:scale-105 hover:shadow-[0_4px_8px_rgba(0,0,0,0.3)]`}
                                      style={{fontFamily: "'Ubuntu', sans-serif", textDecoration: "none",color: "white"}}>
                                 <FaSignOutAlt size={24} className="min-w-max"/>
-                                Sign Out
+                                Log Out
                             </NavLink>
                         </li>
                     </ul>
