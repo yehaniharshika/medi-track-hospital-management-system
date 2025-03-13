@@ -19,14 +19,26 @@ const Login = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         dispatch(loginUser(formData))
-            .then((response: any) => {
-                console.log('Access Token:', response.payload.accessToken);
-                console.log('Refresh Token:', response.payload.refreshToken);
-                alert('Login Successful!');
-                navigate('/dashboard');
+            .unwrap() // Unwraps the payload to handle promises properly
+            .then(({ accessToken, refreshToken }) => {
+                // Log tokens in console
+                console.log("Access Token:", accessToken);
+                console.log("Refresh Token:", refreshToken);
+
+                // Store tokens in localStorage
+                localStorage.setItem("accessToken", accessToken);
+                localStorage.setItem("refreshToken", refreshToken);
+
+                // Verify storage and log it
+                console.log("Stored Access Token:", localStorage.getItem("accessToken"));
+                console.log("Stored Refresh Token:", localStorage.getItem("refreshToken"));
+
+                alert("Login Successful!");
+                navigate("/dashboard");
             })
             .catch((error: any) => {
-                console.error('Login Error:', error);
+                console.error("Login Error:", error);
+                alert("Login failed! Please try again.");
             });
     };
 
