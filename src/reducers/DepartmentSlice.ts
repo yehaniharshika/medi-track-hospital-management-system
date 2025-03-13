@@ -101,7 +101,7 @@ export const deleteDepartment = createAsyncThunk(
                 // Show success message
                 Swal.fire({
                     title: "✅ Deleted!",
-                    html: '<p class="swal-text">Department has been successfully deleted.</p>',
+                    html: '<p class="swal-text">successfully deleted Department.</p>',
                     icon: "success",
                     confirmButtonText: "OK",
                     background: "white",

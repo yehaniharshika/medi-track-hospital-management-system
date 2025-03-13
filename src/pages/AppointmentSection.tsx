@@ -156,19 +156,15 @@ const AppointmentSection = () => {
 
     const handleDeleteAppointment = (event: React.MouseEvent<HTMLButtonElement>, appointmentCode: string) => {
         event.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this Appointment?")) {
-            dispatch(deleteAppointment(appointmentCode));
-        }
-    };
+        dispatch(deleteAppointment(appointmentCode));
 
+    };
 
     const events: EventInput[] = appointments.map((appointment: Appointment) => ({
         title: `Patient: ${appointment.patientId} | Time: ${appointment.appointmentTime}`,
         start: `${appointment.appointmentDate}T${appointment.appointmentTime}`,
         end: `${appointment.appointmentDate}T${appointment.appointmentTime}`,
     }));
-
-
 
 
     return (
