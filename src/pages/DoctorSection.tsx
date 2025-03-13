@@ -154,9 +154,7 @@ const DoctorSection = () => {
 
     const handleDeleteDoctor = (event: React.MouseEvent<HTMLButtonElement>, doctorId: string) => {
         event.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this Doctor?")) {
-            dispatch(deleteDoctor(doctorId));
-        }
+        dispatch(deleteDoctor(doctorId));
     };
 
 
@@ -356,7 +354,6 @@ const DoctorSection = () => {
                             <Modal.Footer>
                                 <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="primary" onClick={handleAddDoctor}>Save</Button>
                                 <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="success" onClick={handleUpdateDoctor}>Update</Button>
-                                <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="danger">Delete</Button>
                                 <Button style={{ fontFamily: "'Montserrat', serif" , fontSize: "15px" , fontWeight: "600"}}  className="font-bold" variant="secondary" onClick={handleClose}>Close</Button>
                             </Modal.Footer>
                         </Modal>
