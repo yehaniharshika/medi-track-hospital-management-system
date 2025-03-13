@@ -41,7 +41,7 @@ export const saveDoctor = createAsyncThunk(
             console.error("Error saving Medicine:", error);
             Swal.fire({
                 title: "Error!",
-                html: '<p class="swal-text">Failed to save department.</p>', // Added class for styling
+                html: '<p class="swal-text">Failed to save Doctor.</p>', // Added class for styling
                 icon: "error",
                 confirmButtonText: "OK",
                 background: "white",
