@@ -342,7 +342,7 @@ const PaymentSection = () => {
 
 
                                         <Form.Group className="mb-3">
-                                            <Form.Label className="font-bold"
+                                             <Form.Label className="font-bold"
                                                         style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                                 Payment Date
                                             </Form.Label>

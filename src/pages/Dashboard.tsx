@@ -6,9 +6,16 @@ import {IoNotificationsCircleOutline} from "react-icons/io5";
 import { motion } from "motion/react";
 import { useSpring, animated } from "@react-spring/web";
 import {CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 
 export default function Dashboard() {
+    const [patientCount, setPatientCount] = useState(0);
+    const [doctorCount, setDoctorCount] = useState(0);
+    const [medicineCount, setMedicineCount] = useState(0);
+    const [appointmentCount, setAppointmentCount] = useState(0);
+
     const incomeData = [
         { name: "Jan", income: 5000, target: 5500 },
         { name: "Feb", income: 6200, target: 6000 },
@@ -41,6 +48,76 @@ export default function Dashboard() {
         config: { tension: 220, friction: 20 },
     });
 
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(new Date()); // Update time every second
+        }, 1000);
+
+        return () => clearInterval(interval); // Cleanup on unmount
+    }, []);
+
+    const formattedTime = currentTime.toLocaleTimeString(); // Format time
+    const formattedDate = currentTime.toLocaleDateString(); // Format date
+
+
+    useEffect(() => {
+        axios.get("http://localhost:3003/patient/patient-count", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Add token if required
+            }
+        })
+            .then(response => {
+                setPatientCount(response.data); // Assuming API returns just the number
+            })
+            .catch(error => {
+                console.error("Error fetching patient count:", error);
+            });
+
+
+        // doctor count
+        axios.get("http://localhost:3003/doctor/doctor-count", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Add token if required
+            }
+        })
+            .then(response => {
+                setDoctorCount(response.data); // Assuming API returns just the number
+            })
+            .catch(error => {
+                console.error("Error fetching doctor count:", error);
+            });
+
+
+        // medicine count
+        axios.get("http://localhost:3003/medicine/medicine-count", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Add token if required
+            }
+        })
+            .then(response => {
+                setMedicineCount(response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching medicine count:", error);
+            });
+
+
+        // appointment count
+        axios.get("http://localhost:3003/appointment/appointment-count", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Add token if required
+            }
+        })
+            .then(response => {
+                setAppointmentCount(response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching appointment count:", error);
+            });
+    }, []);
+
 
     return (
         <div className="flex w-full h-full overflow-hidden">
@@ -67,14 +144,20 @@ export default function Dashboard() {
                                             </InputGroup>
                                         </Col>
 
-                                        {/* Icons and Profile */}
                                         <Col md={6}>
                                             <div className="d-flex justify-content-end align-items-center gap-3">
-                                                <SiGooglemessages size={35}/>
-                                                <IoNotificationsCircleOutline size={35}/>
+                                                {/* Date & Time */}
+                                                <div className="text-end">
+                                                    <p className="m-0 text-white" style={{ fontFamily: "'Montserrat', serif",fontSize: "20px",fontWeight: "bold"}}>{formattedDate}</p>
+                                                    <h6 className="text-white" style={{ fontFamily: "'Montserrat', serif"}}>{formattedTime}</h6>
+                                                </div>
 
+                                                {/* Icons */}
+                                                <SiGooglemessages size={35}/>
+                                                <IoNotificationsCircleOutline size={35} />
                                             </div>
                                         </Col>
+
                                     </Row>
                                 </Container>
                             </div>
@@ -84,10 +167,10 @@ export default function Dashboard() {
                     <br/><br/>
                     <Row className="gx-1 gy-1 justify-content-between"> {/* Reduced gutter spacing */}
                         {[
-                            { id: "doctor", count: 18, label: "Doctors Count", icon: "doctor.png" },
-                            { id: "patient", count: 13, label: "Patients Count", icon: "patient.png" },
-                            { id: "medicine", count: 7, label: "Medicine", icon: "medicine.png" },
-                            { id: "appointments", count: 8, label: "Appointments", icon: "appointments.png" },
+                            { id: "doctor", count: doctorCount, label: "Doctors Count", icon: "doctor.png" },
+                            { id: "patient", count: patientCount, label: "Patients Count", icon: "patient.png" },
+                            { id: "medicine", count: medicineCount, label: "Medicine", icon: "medicine.png" },
+                            { id: "appointments", count: appointmentCount, label: "Appointments", icon: "appointments.png" },
                             { id: "income", count: 5, label: "Income", icon: "income.png" },
                         ].map((card, index) => (
                             <Col xs={6} sm={4} md={3} lg={2} key={card.id}>
