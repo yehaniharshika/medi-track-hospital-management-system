@@ -10,6 +10,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import { deleteDoctor, getDoctors, saveDoctor, updateDoctor} from "../reducers/DoctorSlice.ts";
 import {Doctor} from "../models/Doctor.ts";
+import Swal from "sweetalert2";
 
 
 const DoctorSection = () => {
@@ -31,6 +32,53 @@ const DoctorSection = () => {
 
     const doctors = useSelector((state : RootState) => state.doctors);
     const departments = useSelector((state: RootState) => state.departments);
+
+    const validateEmail = (email: string) => {
+        if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid email! Please enter a valid email address.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+
+    const validateContactNumber = (phone: string) => {
+        if (!/^(?:\+94|0)(7\d{8})$/.test(phone)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid phone number! Please enter a valid Sri Lankan phone number.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -106,6 +154,14 @@ const DoctorSection = () => {
 
 
     const handleAddDoctor = () => {
+        if (!validateEmail(email)) {
+            return;
+        }
+
+        if (!validateContactNumber(contactNumber)) {
+            return;
+        }
+
         const formData = new FormData();
 
         formData.append("doctorId", doctorId);
@@ -130,6 +186,14 @@ const DoctorSection = () => {
     };
 
     const handleUpdateDoctor = () => {
+        if (!validateEmail(email)) {
+            return;
+        }
+
+        if (!validateContactNumber(contactNumber)) {
+            return;
+        }
+
         const formData = new FormData();
 
         formData.append("doctorId", doctorId);

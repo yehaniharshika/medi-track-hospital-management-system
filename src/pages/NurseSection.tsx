@@ -10,6 +10,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Nurse} from "../models/Nurse.ts";
 import {deleteNurse, getNurses, saveNurse, updateNurse} from "../reducers/NurseSlice.ts";
+import Swal from "sweetalert2";
 
 
 const NurseSection = () => {
@@ -33,6 +34,53 @@ const NurseSection = () => {
 
     const nurses = useSelector((state: RootState) => state.nurses);
     const departments = useSelector((state: RootState) => state.departments);
+
+    const validateEmail = (email: string) => {
+        if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid email! Please enter a valid email address.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+
+    const validateContactNumber = (phone: string) => {
+        if (!/^(?:\+94|0)(7\d{8})$/.test(phone)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid phone number! Please enter a valid Sri Lankan phone number.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
 
     const generateNextNurseId = (existingNurses: Nurse[]) => {
         if (!existingNurses || existingNurses.length === 0) {
@@ -114,6 +162,14 @@ const NurseSection = () => {
 
 
     const handleAddNurse = () => {
+        if (!validateEmail(email)) {
+            return;
+        }
+
+        if (!validateContactNumber(contactNumber)) {
+            return;
+        }
+
         const formData = new FormData();
 
         formData.append("nurseId", nurseId);
@@ -139,6 +195,14 @@ const NurseSection = () => {
 
 
     const handleUpdateNurse = () => {
+        if (!validateEmail(email)) {
+            return;
+        }
+
+        if (!validateContactNumber(contactNumber)) {
+            return;
+        }
+
         const formData = new FormData();
 
         formData.append("nurseId", nurseId);

@@ -164,7 +164,6 @@ const PatientSection = () => {
             return;
         }
 
-        // Validate Contact Number
         if (!validateContactNumber(contactNumber)) {
             return;
         }
@@ -197,6 +196,14 @@ const PatientSection = () => {
 
 
     const handleUpdatePatient = () => {
+        if (!validatePatientName(patientName)) {
+            return;
+        }
+
+        if (!validateContactNumber(contactNumber)) {
+            return;
+        }
+
         const formData = new FormData();
         formData.append("patientId", patientId);
         formData.append("patientName", patientName);
