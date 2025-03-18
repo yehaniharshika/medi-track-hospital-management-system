@@ -96,29 +96,6 @@ const DepartmentSection = () => {
         return true;
     };
 
-    const validateHeadOfDepartment = (head: string) => {
-        if (!/^[A-Za-z\s]{3,}$/.test(head)) {
-            Swal.fire({
-                title: "❌ Error!",
-                html: '<p class="swal-text">Invalid Head of Department name! It must contain at least 3 letters.</p>',
-                icon: "error",
-                confirmButtonText: "OK",
-                background: "white",
-                color: "black",
-                confirmButtonColor: "red",
-                timer: 3000,
-                width: "450px",
-                customClass: {
-                    title: "swal-title",
-                    popup: "swal-popup",
-                    confirmButton: "swal-button",
-                }
-            });
-            return false;
-        }
-        return true;
-    };
-
     const validatePhoneNumber = (phone: string) => {
         if (!/^(?:\+94|0)(7\d{8})$/.test(phone)) {
             Swal.fire({
@@ -195,7 +172,7 @@ const DepartmentSection = () => {
             !validateDepartmentName(departmentName) ||
             !validateEmail(departmentEmail) ||
             !validateLocation(location) ||
-            !validateHeadOfDepartment(headOfDepartment) ||
+            !headOfDepartment ||
             !validatePhoneNumber(phoneNumber)
         ) {
             return;
@@ -212,8 +189,14 @@ const DepartmentSection = () => {
 
 
     const handleUpdateDepartment = () => {
-        if (!departmentId || !validateDepartmentName(departmentName) || !validateEmail(departmentEmail) || !location || !validateHeadOfDepartment(headOfDepartment) || !validatePhoneNumber(phoneNumber)) {
-            alert("Please enter valid details for all fields.");
+        if (
+            !departmentId ||
+            !validateDepartmentName(departmentName) ||
+            !validateEmail(departmentEmail) ||
+            !validateLocation(location) ||
+            !headOfDepartment ||
+            !validatePhoneNumber(phoneNumber)
+        ) {
             return;
         }
 

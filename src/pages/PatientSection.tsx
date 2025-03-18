@@ -10,6 +10,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Patient} from "../models/Patient.ts";
 import {deletePatient, getPatients, savePatient, updatePatient} from "../reducers/PatientSlice.ts";
+import Swal from "sweetalert2";
 
 const PatientSection = () => {
 
@@ -33,6 +34,53 @@ const PatientSection = () => {
     const patients = useSelector((state: RootState) => state.patients);
     const [patientImg, setPatientImg] = useState<File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+
+    const validatePatientName = (name: string) => {
+        if (!/^[A-Za-z\s]{3,}$/.test(name)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid patient name! It must contain at least 3 letters.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+    const validateContactNumber = (phone: string) => {
+        if (!/^(?:\+94|0)(7\d{8})$/.test(phone)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid phone number! Please enter a valid Sri Lankan phone number.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -112,6 +160,15 @@ const PatientSection = () => {
     };
 
     const handleAddPatient = () => {
+        if (!validatePatientName(patientName)) {
+            return;
+        }
+
+        // Validate Contact Number
+        if (!validateContactNumber(contactNumber)) {
+            return;
+        }
+
         const formData = new FormData();
         formData.append("patientId", patientId);
         formData.append("patientName", patientName);
@@ -322,7 +379,7 @@ const PatientSection = () => {
                                     <Form.Group className="mb-3">
                                         <Form.Label className="font-bold" style={{fontFamily: "'Ubuntu', sans-serif"}}>
                                             Chronic Diseases</Form.Label>
-                                        <Form.Control placeholder="Enter Email"
+                                        <Form.Control placeholder="Enter Chronic Diseases"
                                                       className="border-2 border-black"
                                                       style={{ fontFamily: "'Montserrat', serif" ,
                                                           fontSize: "15px"}} type="text"
