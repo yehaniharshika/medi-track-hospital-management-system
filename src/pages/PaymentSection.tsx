@@ -184,6 +184,8 @@ const PaymentSection = () => {
         setTotalPrice(0);
         setPaymentId("");
         setPaymentDate("");
+        setPatientName("");
+        setAge("");
         setSelectedMedicine(null);
     };
 
@@ -417,7 +419,6 @@ const PaymentSection = () => {
                                     <Form className="p-4 border rounded bg-white shadow">
                                         {selectedMedicine && (
                                             <div className="p-4 border rounded shadow bg-gray-100">
-
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif" ,fontSize:"15px"}} className="block text-sm font-bold">Item Name</Form.Label>
                                                 <Form.Control
                                                     type="text"
@@ -428,7 +429,7 @@ const PaymentSection = () => {
                                                 />
 
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Price</Form.Label>
-                                                <Form.Control type="text" value={selectedMedicine.unit_price} style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border p-2 rounded w-full" disabled/>
+                                                <Form.Control type="number" value={selectedMedicine.unit_price} style={{fontFamily: "'Montserrat', serif", fontSize: "15px"}} className="border p-2 rounded w-full" disabled/>
 
                                                 <Form.Label style={{fontFamily: "'Ubuntu', sans-serif",fontSize:"15px"}} className="block text-sm font-bold mt-2">Stock</Form.Label>
                                                 <Form.Control type="text" value={selectedMedicine.quantity_in_stock}

@@ -16,6 +16,7 @@ import MedicineSection from "./pages/MedicineSection.tsx";
 import MedicalReportSection from "./pages/MedicalReportSection.tsx";
 import PaymentSection from "./pages/PaymentSection.tsx";
 import Logout from "./pages/Logout.tsx";
+import SettingSection from "./pages/SettingSection.tsx";
 
 function App() {
   const routes = createBrowserRouter([
@@ -36,6 +37,7 @@ function App() {
         { path: '/medicine', element: <MedicineSection /> },
         { path: '/report', element: <MedicalReportSection /> },
         { path: '/payment', element: <PaymentSection /> },
+        { path: '/setting', element: <SettingSection /> },
         { path: '/logout', element: <Logout /> },
       ],
     },

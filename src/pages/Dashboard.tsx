@@ -15,6 +15,7 @@ export default function Dashboard() {
     const [doctorCount, setDoctorCount] = useState(0);
     const [medicineCount, setMedicineCount] = useState(0);
     const [appointmentCount, setAppointmentCount] = useState(0);
+    const [totalIncome, setTotalIncome] = useState(0);
 
     const incomeData = [
         { name: "Jan", income: 5000, target: 5500 },
@@ -36,11 +37,12 @@ export default function Dashboard() {
         { id: 2, name: "Dr. Jane Smith", specialty: "Dermatologist", img: "doctor3.jpg" },
         { id: 3, name: "Dr. Emily White", specialty: "Pediatrician", img: "doctor4.jpg" },
         { id: 4, name: "Dr. Mark Brown", specialty: "Orthopedic", img: "doctor5.png" },
-        { id: 1, name: "Dr. John Doe", specialty: "Cardiologist", img: "doctor01.jpg" },
-        { id: 2, name: "Dr. Jane Smith", specialty: "Dermatologist", img: "doctor3.jpg" },
-        { id: 3, name: "Dr. Emily White", specialty: "Pediatrician", img: "doctor4.jpg" },
-        { id: 4, name: "Dr. Mark Brown", specialty: "Orthopedic", img: "doctor5.png" },
+        { id: 5, name: "Dr. Sarah Connor", specialty: "Neurologist", img: "doctor6.jpg" },
+        { id: 6, name: "Dr. Alex Johnson", specialty: "ENT Specialist", img: "doctor7.jpg" },
+        { id: 7, name: "Dr. Kevin Harris", specialty: "General Physician", img: "doctor8.jpg" },
+        { id: 8, name: "Dr. Sophia Lee", specialty: "Ophthalmologist", img: "doctor9.jpg" },
     ];
+
 
     const springProps = useSpring({
         opacity: 1,
@@ -116,8 +118,20 @@ export default function Dashboard() {
             .catch(error => {
                 console.error("Error fetching appointment count:", error);
             });
-    }, []);
 
+        axios.get("http://localhost:3003/payment/total-income", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}` // Add token if required
+            }
+        })
+            .then(response => {
+                setTotalIncome(response.data.totalIncome);
+            })
+            .catch(error => {
+                console.error("Error fetching income:", error);
+            });
+
+    }, []);
 
     return (
         <div className="flex w-full h-full overflow-hidden">
@@ -171,7 +185,7 @@ export default function Dashboard() {
                             { id: "patient", count: patientCount, label: "Patients Count", icon: "patient.png" },
                             { id: "medicine", count: medicineCount, label: "Medicine", icon: "medicine.png" },
                             { id: "appointments", count: appointmentCount, label: "Appointments", icon: "appointments.png" },
-                            { id: "income", count: 5, label: "Income", icon: "income.png" },
+                            { id: "income", count: totalIncome, label: "Income", icon: "income.png" },
                         ].map((card, index) => (
                             <Col xs={6} sm={4} md={3} lg={2} key={card.id}>
                                 <motion.div
@@ -272,7 +286,7 @@ export default function Dashboard() {
                                                         border: "2px solid #8884d8",
                                                     }}
                                                 />
-                                                <div>
+                                                <div key={`${doctor.id}-${index}`}>
                                                     <h6 className="font-bold">{doctor.name}</h6>
                                                     <small className="text-muted">{doctor.specialty}</small>
                                                 </div>
