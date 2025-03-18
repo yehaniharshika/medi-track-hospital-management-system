@@ -10,6 +10,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../store/Store.ts";
 import {Department} from "../models/Department.ts";
 import {deleteDepartment, getDepartments, saveDepartment, updateDepartment} from "../reducers/DepartmentSlice.ts";
+import Swal from "sweetalert2";
+import "./style/calendar.css";
 
 const DepartmentSection = () => {
     const [show, setShow] = useState(false);
@@ -23,6 +25,122 @@ const DepartmentSection = () => {
     const [headOfDepartment, setHeadOfDepartment] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const dispatch = useDispatch<AppDispatch>();
+
+
+    const validateDepartmentName = (name: string) => {
+        if (!/^[A-Za-z\s]{3,}$/.test(name)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid department name! It must contain at least 3 letters.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+    const validateEmail = (email: string) => {
+        if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid email! Please enter a valid email address.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+    const validateLocation = (loc: string) => {
+        if (loc.trim().length < 3) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid location! It must contain at least 3 characters.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+    const validateHeadOfDepartment = (head: string) => {
+        if (!/^[A-Za-z\s]{3,}$/.test(head)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid Head of Department name! It must contain at least 3 letters.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
+
+    const validatePhoneNumber = (phone: string) => {
+        if (!/^(?:\+94|0)(7\d{8})$/.test(phone)) {
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Invalid phone number! Please enter a valid Sri Lankan phone number.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
+            return false;
+        }
+        return true;
+    };
 
     const departments = useSelector((state: RootState) => state.departments);
 
@@ -72,8 +190,14 @@ const DepartmentSection = () => {
 
 
     const handleAddDepartment = () => {
-        if (!departmentId || !departmentName || !departmentEmail || !location || !headOfDepartment || !phoneNumber) {
-            alert("All fields are required!");
+        if (
+            !departmentId ||
+            !validateDepartmentName(departmentName) ||
+            !validateEmail(departmentEmail) ||
+            !validateLocation(location) ||
+            !validateHeadOfDepartment(headOfDepartment) ||
+            !validatePhoneNumber(phoneNumber)
+        ) {
             return;
         }
 
@@ -88,8 +212,8 @@ const DepartmentSection = () => {
 
 
     const handleUpdateDepartment = () => {
-        if (!departmentId || !departmentName || !departmentEmail || !location || !headOfDepartment || !phoneNumber) {
-            alert("All fields are required!");
+        if (!departmentId || !validateDepartmentName(departmentName) || !validateEmail(departmentEmail) || !location || !validateHeadOfDepartment(headOfDepartment) || !validatePhoneNumber(phoneNumber)) {
+            alert("Please enter valid details for all fields.");
             return;
         }
 
