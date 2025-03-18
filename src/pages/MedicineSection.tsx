@@ -101,10 +101,16 @@ const MedicineSection = () => {
         setMedicineName('');
         setBrand('');
         setMedicineImg(null);
+        setPreviewImage(null);
         setDosage_form('');
         setUnit_price('');
         setQuantity_in_stock(0);
         setExpiry_date('');
+
+        const fileInput = document.getElementById('file-input') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
     };
 
 
@@ -269,7 +275,7 @@ const MedicineSection = () => {
                                         </div>
                                         <Button className="choose-image-btn" as="label">
                                             Choose Image
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
+                                            <input type="file" id="file-input" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
 

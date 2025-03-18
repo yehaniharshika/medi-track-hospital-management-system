@@ -127,9 +127,13 @@ const MedicalReportSection = () => {
         setMedicalReportId('');
         setPatientId('');
         setPatientName('');
+        setGender('');
         setTestResults([]);
         setReportDate('');
         setNotes('');
+        setDoctorId('');
+        setDoctorName('');
+        setSpecialty('');
     };
 
 

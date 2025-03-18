@@ -1,5 +1,5 @@
 import { Navigation } from "../components/Navigation.tsx";
-import {Container, Col, Form, Row, Button, Table} from "react-bootstrap";
+import {Container, Col, Form, Row, Button, Table, Modal} from "react-bootstrap";
 import { motion } from "framer-motion";
 import {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +10,7 @@ import {getPatients} from "../reducers/PatientSlice.ts";
 import {getMedicines} from "../reducers/MedicineSlice.ts";
 import {Payment} from "../models/Payment.ts";
 import {jsPDF} from "jspdf";
+import Swal from "sweetalert2";
 
 
 const PaymentSection = () => {
@@ -29,6 +30,8 @@ const PaymentSection = () => {
     const medicines = useSelector((state: RootState) => state.medicines);
     const payments = useSelector((state: RootState) => state.payments);
 
+    const [showModal, setShowModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
     // Generate Next Payment ID (Only for PI prefix)
     const generateNextPaymentId = (existingPayments: Payment[]): string => {
@@ -72,7 +75,6 @@ const PaymentSection = () => {
             }
         }
     }, [selectedPatient, patients]);
-
 
 
     useEffect(() => {
@@ -217,7 +219,22 @@ const PaymentSection = () => {
 
     const generatePaymentBill = () => {
         if (!paymentId || !paymentDate || paymentMedicines.length === 0 || !selectedPatient) {
-            alert("Missing payment details or medicines. Please ensure the payment is created.");
+            Swal.fire({
+                title: "❌ Error!",
+                html: '<p class="swal-text">Missing payment details or medicines. Please ensure the payment is created.</p>',
+                icon: "error",
+                confirmButtonText: "OK",
+                background: "white",
+                color: "black",
+                confirmButtonColor: "red",
+                timer: 3000,
+                width: "450px",
+                customClass: {
+                    title: "swal-title",
+                    popup: "swal-popup",
+                    confirmButton: "swal-button",
+                }
+            });
             return;
         }
 
@@ -234,8 +251,8 @@ const PaymentSection = () => {
 
         // Use the bold Ubuntu font for the title
         doc.setFont("Ubuntu", "bold");
-        doc.setFontSize(20);
-        doc.text("MediTrack Healthcare Services(Pvt) .Ltd", 80, 20);
+        doc.setFontSize(18);
+        doc.text("MediTrack Healthcare Services(Pvt) .Ltd", 50, 20);
 
         // Use regular Ubuntu font for other text
         doc.setFont("Ubuntu", "normal");
@@ -284,9 +301,12 @@ const PaymentSection = () => {
         doc.text("THANK YOU! COME AGAIN!", 70, yOffset + 20);
         doc.text("Email: meditrackhealthcare@gmail.com", 70, yOffset + 30);
 
-        // Save the generated PDF
-        doc.save(`order-bill-${paymentId}.pdf`);
+        const pdfBlob = doc.output("blob");
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        setPdfUrl(pdfUrl);
+        setShowModal(true);
         resetForm();
+        setPaymentId(generateNextPaymentId(payments))
     };
 
     return (
@@ -504,6 +524,35 @@ const PaymentSection = () => {
                                         Generate Bill
                                     </button>
                                 </div>
+                                <Modal show={showModal} onHide={() => setShowModal(false)} size="xl">
+                                    <Modal.Header closeButton>
+                                        <Modal.Title style={{fontFamily: "'Montserrat', serif"}}>Payment Bill</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        {pdfUrl ? (
+                                            <iframe src={pdfUrl} width="100%" height="500px" />
+                                        ) : (
+                                            <p>Generating bill...</p>
+                                        )}
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button  style={{fontFamily: "'Montserrat', serif",fontSize:"14px",fontWeight:"600"}} variant="secondary" onClick={() => setShowModal(false)}>
+                                            Close
+                                        </Button>
+                                        <Button  style={{fontFamily: "'Montserrat', serif",fontSize:"14px",fontWeight:"600"}} variant="primary"
+                                            onClick={() => {
+                                                if (pdfUrl) {
+                                                    const link = document.createElement("a");
+                                                    link.href = pdfUrl;
+                                                    link.download = `PaymentBill_${paymentId}.pdf`;
+                                                    link.click();
+                                                }
+                                            }}
+                                        >
+                                            Download PDF
+                                        </Button>
+                                    </Modal.Footer>
+                                </Modal>
                             </div>
                         </div>
                     </Container>

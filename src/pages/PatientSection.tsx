@@ -149,6 +149,7 @@ const PatientSection = () => {
         setPatientName('');
         setAge('');
         setPatientImg(null);
+        setPreviewImage(null);
         setAddressLine1('');
         setAddressLine2('');
         setPostalCode('');
@@ -157,6 +158,11 @@ const PatientSection = () => {
         setBlood_type('');
         setChronic_diseases('');
         setLast_visit_date('');
+
+        const fileInput = document.getElementById('file-input') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
     };
 
     const handleAddPatient = () => {
@@ -322,12 +328,9 @@ const PatientSection = () => {
                                         </div>
                                         <Button className="choose-image-btn" as="label">
                                             Choose Image
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
+                                            <input type="file" id="file-input" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
-
-
-
 
                                     <Row className="mb-3">
                                         <Col md={6}>

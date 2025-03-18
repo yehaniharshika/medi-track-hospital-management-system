@@ -134,6 +134,7 @@ const DoctorSection = () => {
         setDoctorName('');
         setSpecialty('');
         setDoctorImg(null);
+        setPreviewImage(null);
         setGender('');
         setContactNumber('');
         setEmail('');

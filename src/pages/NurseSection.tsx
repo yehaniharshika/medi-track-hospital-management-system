@@ -153,12 +153,20 @@ const NurseSection = () => {
         setNurseId('');
         setNurseName('');
         setNurseImg(null);
+        setPreviewImage(null);
         setGender('');
         setContactNumber('');
         setQualification('');
         setEmail('');
         setDepartmentId('');
+
+        // Clear file input manually
+        const fileInput = document.getElementById('file-input') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
     };
+
 
 
     const handleAddNurse = () => {
@@ -315,7 +323,7 @@ const NurseSection = () => {
                                         </div>
                                         <Button className="choose-image-btn" as="label">
                                             Choose Image
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
+                                            <input type="file" id="file-input" accept="image/*" onChange={handleImageUpload} hidden />
                                         </Button>
                                     </Form.Group>
 

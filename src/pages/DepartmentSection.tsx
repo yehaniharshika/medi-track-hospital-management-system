@@ -97,7 +97,7 @@ const DepartmentSection = () => {
     };
 
     const validatePhoneNumber = (phone: string) => {
-        if (!/^(?:\+94|0)(7\d{8})$/.test(phone)) {
+        if (!/^(?:\+94|0)(7\d{8}|38\d{7})$/.test(phone)) {
             Swal.fire({
                 title: "❌ Error!",
                 html: '<p class="swal-text">Invalid phone number! Please enter a valid Sri Lankan phone number.</p>',
